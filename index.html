@@ -1,0 +1,1805 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HappyTask CRM</title>
+<style>
+:root {
+  --bg: #1a1a2e;
+  --bg-card: #242442;
+  --bg-muted: #2a2a4a;
+  --bg-hover: #2e2e52;
+  --text: #e8e8f0;
+  --text-muted: #8888a8;
+  --text-muted-2: #666688;
+  --border: #3a3a5a;
+  --brand: #F7880C;
+  --brand-bg: rgba(247,136,12,0.12);
+  --brand-bg2: rgba(247,136,12,0.06);
+  --green: #22c55e;
+  --green-bg: rgba(34,197,94,0.12);
+  --blue: #3b82f6;
+  --blue-bg: rgba(59,130,246,0.12);
+  --purple: #8b5cf6;
+  --purple-bg: rgba(139,92,246,0.12);
+  --yellow: #f59e0b;
+  --yellow-bg: rgba(245,158,11,0.12);
+  --red: #ef4444;
+  --red-bg: rgba(239,68,68,0.12);
+  --cyan: #06b6d4;
+  --sky: #0ea5e9;
+  --sidebar-w: 240px;
+  --font: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+.light {
+  --bg: #f8f9fa;
+  --bg-card: #ffffff;
+  --bg-muted: #f1f3f5;
+  --bg-hover: #e9ecef;
+  --text: #1a1a2e;
+  --text-muted: #6b7280;
+  --text-muted-2: #9ca3af;
+  --border: #e5e7eb;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: var(--font); background: var(--bg); color: var(--text); min-height: 100vh; }
+a { color: inherit; text-decoration: none; }
+button { cursor: pointer; font-family: inherit; }
+input, select, textarea { font-family: inherit; }
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+/* Layout */
+.app { display: flex; min-height: 100vh; }
+.sidebar { width: var(--sidebar-w); border-right: 1px solid var(--border); background: var(--bg-card); display: flex; flex-direction: column; height: 100vh; position: sticky; top: 0; flex-shrink: 0; }
+.main { flex: 1; min-width: 0; padding: 24px; }
+
+/* Sidebar */
+.sidebar-logo { padding: 20px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 10px; cursor: pointer; }
+.sidebar-logo-icon { width: 32px; height: 32px; border-radius: 8px; background: var(--brand); display: flex; align-items: center; justify-content: center; }
+.sidebar-logo-icon svg { width: 18px; height: 18px; color: #000; }
+.sidebar-logo-text { font-size: 16px; font-weight: 600; letter-spacing: -0.3px; }
+.sidebar-logo-text small { font-size: 10px; font-weight: 500; color: var(--text-muted); margin-left: 6px; text-transform: uppercase; letter-spacing: 2px; }
+.sidebar-nav { flex: 1; padding: 12px; display: flex; flex-direction: column; gap: 2px; }
+.nav-link { display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-radius: 8px; font-size: 14px; font-weight: 500; color: var(--text-muted); transition: all 0.15s; }
+.nav-link:hover { color: var(--text); background: var(--bg-muted); }
+.nav-link.active { color: var(--brand); background: var(--brand-bg); }
+.nav-link svg { width: 18px; height: 18px; }
+.sidebar-footer { padding: 16px; border-top: 1px solid var(--border); display: flex; flex-direction: column; gap: 8px; }
+.theme-btn { display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; padding: 8px; border-radius: 8px; border: none; background: transparent; color: var(--text-muted); font-size: 13px; font-weight: 500; transition: all 0.15s; }
+.theme-btn:hover { color: var(--text); background: var(--bg-muted); }
+.sync-info { font-size: 11px; color: var(--text-muted); text-align: center; }
+
+/* Cards */
+.card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+.card-header { padding: 16px 20px 8px; }
+.card-header h3 { font-size: 14px; font-weight: 600; }
+.card-body { padding: 16px 20px; }
+.card-body-np { padding: 0; }
+
+/* Stat Cards */
+.stat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+.stat-card { display: flex; align-items: center; gap: 16px; padding: 16px; }
+.stat-icon { width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.stat-icon svg { width: 20px; height: 20px; }
+.stat-value { font-size: 24px; font-weight: 700; }
+.stat-label { font-size: 12px; color: var(--text-muted); }
+
+/* Bar Charts */
+.bar-row { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+.bar-label { font-size: 14px; color: var(--text-muted); width: 128px; flex-shrink: 0; }
+.bar-track { flex: 1; height: 28px; background: var(--bg-muted); border-radius: 8px; overflow: hidden; }
+.bar-fill { height: 100%; border-radius: 8px; transition: width 0.5s ease; min-width: 2%; }
+.bar-count { font-size: 14px; font-weight: 500; width: 40px; text-align: right; flex-shrink: 0; }
+
+/* Table */
+table { width: 100%; border-collapse: collapse; }
+th { text-align: left; padding: 12px; font-size: 11px; font-weight: 500; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid var(--border); background: var(--bg-muted); }
+td { padding: 12px; border-bottom: 1px solid var(--border); font-size: 14px; vertical-align: middle; }
+tr.clickable:hover { background: var(--bg-hover); cursor: pointer; }
+
+/* Badges */
+.badge { display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; border-radius: 9999px; font-size: 10px; font-weight: 600; border: 1px solid; white-space: nowrap; }
+.badge-brand { background: var(--brand-bg); color: var(--brand); border-color: rgba(247,136,12,0.3); }
+.badge-green { background: var(--green-bg); color: var(--green); border-color: rgba(34,197,94,0.3); }
+.badge-blue { background: var(--blue-bg); color: var(--blue); border-color: rgba(59,130,246,0.3); }
+.badge-purple { background: var(--purple-bg); color: var(--purple); border-color: rgba(139,92,246,0.3); }
+.badge-yellow { background: var(--yellow-bg); color: var(--yellow); border-color: rgba(245,158,11,0.3); }
+.badge-red { background: var(--red-bg); color: var(--red); border-color: rgba(239,68,68,0.3); }
+.badge-cyan { background: rgba(6,182,212,0.12); color: var(--cyan); border-color: rgba(6,182,212,0.3); }
+.badge-gray { background: var(--bg-muted); color: var(--text-muted); border-color: var(--border); }
+.badge-indigo { background: rgba(99,102,241,0.12); color: #6366f1; border-color: rgba(99,102,241,0.3); }
+
+/* Avatar */
+.avatar { width: 36px; height: 36px; border-radius: 50%; background: var(--brand-bg); color: var(--brand); display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 600; flex-shrink: 0; }
+.avatar-lg { width: 64px; height: 64px; border-radius: 16px; font-size: 24px; }
+
+/* Form Elements */
+.search-wrap { position: relative; }
+.search-wrap svg { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); width: 16px; height: 16px; color: var(--text-muted); }
+.search-input { width: 100%; padding: 8px 12px 8px 36px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg-card); color: var(--text); font-size: 14px; outline: none; transition: border-color 0.15s; }
+.search-input:focus { border-color: var(--brand); }
+.select-input { padding: 8px 12px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg-card); color: var(--text); font-size: 13px; outline: none; cursor: pointer; }
+.select-input:focus { border-color: var(--brand); }
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 8px 14px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg-card); color: var(--text); font-size: 13px; font-weight: 500; transition: all 0.15s; }
+.btn:hover { background: var(--bg-hover); }
+.btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.btn-brand { background: var(--brand); color: #000; border-color: var(--brand); }
+.btn-brand:hover { opacity: 0.9; }
+.btn-sm { padding: 4px 10px; font-size: 12px; }
+
+/* Filters row */
+.filters-row { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+
+/* Pagination */
+.pagination { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; border-top: 1px solid var(--border); }
+.page-sizes { display: flex; gap: 4px; }
+.page-size-btn { padding: 2px 8px; border-radius: 4px; font-size: 12px; border: none; background: transparent; color: var(--text-muted); cursor: pointer; }
+.page-size-btn.active { background: var(--brand-bg); color: var(--brand); font-weight: 500; }
+.page-info { font-size: 12px; color: var(--text-muted); }
+.page-nav { display: flex; gap: 4px; }
+.page-nav button { width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; border-radius: 6px; border: 1px solid var(--border); background: var(--bg-card); color: var(--text); cursor: pointer; }
+.page-nav button:disabled { opacity: 0.3; cursor: not-allowed; }
+.page-nav button:hover:not(:disabled) { background: var(--bg-hover); }
+
+/* Sort buttons */
+.sort-btn { display: inline-flex; align-items: center; gap: 4px; background: none; border: none; color: var(--text-muted); font-size: 11px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px; cursor: pointer; padding: 0; }
+.sort-btn:hover { color: var(--text); }
+.sort-btn svg { width: 12px; height: 12px; }
+.sort-active { color: var(--brand); }
+
+/* Activity indicators */
+.activity-ind { display: flex; align-items: center; gap: 4px; font-size: 10px; }
+.activity-ind svg { width: 12px; height: 12px; }
+
+/* Contact cell */
+.contact-cell { display: flex; align-items: center; gap: 12px; }
+.contact-info { min-width: 0; }
+.contact-name { font-size: 14px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.contact-meta { display: flex; align-items: center; gap: 12px; font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+.contact-meta svg { width: 12px; height: 12px; flex-shrink: 0; }
+.contact-note { font-size: 11px; color: var(--text-muted); opacity: 0.6; margin-top: 2px; font-style: italic; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 300px; }
+.location-cell { display: flex; align-items: center; gap: 4px; font-size: 13px; color: var(--text-muted); }
+.location-cell svg { width: 12px; height: 12px; flex-shrink: 0; }
+
+/* Today Actions */
+.action-row { display: flex; align-items: center; gap: 12px; padding: 10px; border-radius: 8px; transition: background 0.15s; cursor: pointer; }
+.action-row:hover { background: var(--bg-muted); }
+.action-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.action-title { font-size: 14px; font-weight: 500; }
+.action-count { font-size: 13px; color: var(--text-muted); }
+
+/* Contact Profile */
+.profile-header { display: flex; align-items: flex-start; gap: 20px; padding: 24px; }
+.profile-badges { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-top: 4px; }
+.profile-stats { display: flex; align-items: center; gap: 24px; margin-top: 16px; font-size: 12px; color: var(--text-muted); flex-wrap: wrap; }
+.profile-stats span { display: flex; align-items: center; gap: 6px; }
+.profile-stats svg { width: 14px; height: 14px; }
+.profile-meta { display: flex; align-items: center; gap: 20px; margin-top: 8px; font-size: 14px; color: var(--text-muted); flex-wrap: wrap; }
+.profile-meta span { display: flex; align-items: center; gap: 6px; }
+.profile-meta svg { width: 14px; height: 14px; }
+
+/* Negative Signals */
+.signals-card { border-color: rgba(239,68,68,0.3); background: var(--red-bg); }
+.signal-row { display: flex; align-items: center; gap: 8px; font-size: 14px; margin-bottom: 6px; }
+.signal-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+.signal-since { font-size: 12px; color: var(--text-muted); opacity: 0.6; }
+
+/* Tabs */
+.tabs-bar { display: flex; gap: 2px; border-bottom: 1px solid var(--border); margin-bottom: 16px; }
+.tab-btn { padding: 8px 16px; border: none; background: none; color: var(--text-muted); font-size: 13px; font-weight: 500; cursor: pointer; border-bottom: 2px solid transparent; transition: all 0.15s; }
+.tab-btn:hover { color: var(--text); }
+.tab-btn.active { color: var(--brand); border-bottom-color: var(--brand); }
+.tab-content { display: none; }
+.tab-content.active { display: block; }
+
+/* SMS Chat */
+.sms-container { max-height: 600px; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 8px; }
+.sms-separator { display: flex; align-items: center; gap: 12px; margin: 12px 0; }
+.sms-separator span { font-size: 11px; font-weight: 500; color: var(--text-muted); white-space: nowrap; }
+.sms-separator-line { flex: 1; height: 1px; background: var(--border); }
+.sms-bubble-wrap { display: flex; }
+.sms-bubble-wrap.outbound { justify-content: flex-end; }
+.sms-bubble-wrap.inbound { justify-content: flex-start; }
+.sms-bubble { max-width: 75%; border-radius: 16px; padding: 10px 16px; font-size: 14px; white-space: pre-wrap; word-break: break-word; }
+.sms-bubble.outbound { background: var(--brand-bg); border-bottom-right-radius: 4px; }
+.sms-bubble.inbound { background: var(--bg-muted); border-bottom-left-radius: 4px; }
+.sms-time { font-size: 10px; color: var(--text-muted); margin-top: 4px; }
+
+/* Email list */
+.email-row { padding: 14px 16px; border-bottom: 1px solid var(--border); transition: background 0.15s; }
+.email-row:hover { background: var(--bg-hover); }
+.email-subject { font-size: 14px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.email-badges { display: flex; align-items: center; gap: 12px; margin-top: 6px; flex-wrap: wrap; }
+.email-badge { display: flex; align-items: center; gap: 4px; font-size: 10px; }
+.email-badge svg { width: 12px; height: 12px; }
+.email-date { font-size: 10px; color: var(--text-muted); white-space: nowrap; flex-shrink: 0; }
+
+/* Sequence progress */
+.seq-bar { display: flex; gap: 4px; }
+.seq-step { height: 8px; flex: 1; border-radius: 9999px; background: var(--bg-muted); }
+.seq-step.done { background: var(--brand); }
+
+/* Notes */
+.note-card { padding: 12px; border-radius: 8px; background: var(--bg-muted); border: 1px solid var(--border); margin-bottom: 12px; }
+.note-header { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 8px; }
+.note-body { font-size: 14px; white-space: pre-wrap; }
+.note-date { font-size: 10px; color: var(--text-muted); margin-top: 8px; }
+
+/* Detail rows */
+.detail-row { display: flex; justify-content: space-between; align-items: baseline; padding: 4px 0; font-size: 14px; }
+.detail-label { color: var(--text-muted); }
+.detail-value { font-weight: 500; }
+
+/* Two column layout */
+.two-col { display: flex; gap: 24px; }
+.col-left { flex: 1; min-width: 0; }
+.col-right { width: 420px; flex-shrink: 0; }
+
+/* Timeline */
+.timeline-row { display: flex; gap: 12px; padding: 12px; transition: background 0.15s; }
+.timeline-row:hover { background: var(--bg-hover); }
+.timeline-row + .timeline-row { border-top: 1px solid var(--border); }
+.timeline-icon { width: 32px; height: 32px; border-radius: 50%; background: var(--bg-muted); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.timeline-icon svg { width: 14px; height: 14px; }
+.timeline-title { font-size: 14px; font-weight: 500; }
+.timeline-desc { font-size: 12px; color: var(--text-muted); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.timeline-time { font-size: 12px; color: var(--text-muted); flex-shrink: 0; }
+
+/* Heatmap */
+.heatmap { display: flex; gap: 2px; overflow-x: auto; padding: 4px 0; }
+.heatmap-col { display: flex; flex-direction: column; gap: 2px; }
+.heatmap-cell { width: 10px; height: 10px; border-radius: 2px; background: var(--bg-muted); }
+.hm-1 { background: rgba(247,136,12,0.2); }
+.hm-2 { background: rgba(247,136,12,0.4); }
+.hm-3 { background: rgba(247,136,12,0.6); }
+.hm-4 { background: var(--brand); }
+
+/* Outreach tiers */
+.tier-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+.tier-card { cursor: pointer; transition: all 0.15s; }
+.tier-card:hover { border-color: var(--text-muted); }
+.tier-card.selected { border-width: 2px; }
+.tier-header { display: flex; align-items: flex-start; justify-content: space-between; }
+.tier-icon { width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; }
+.tier-icon svg { width: 18px; height: 18px; }
+.tier-count { font-size: 24px; font-weight: 700; }
+.tier-priority { font-size: 10px; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); font-weight: 500; }
+.tier-name { font-size: 14px; font-weight: 600; margin-top: 12px; }
+.tier-desc { font-size: 14px; color: var(--text-muted); margin-top: 4px; line-height: 1.4; }
+
+/* Outreach contact row */
+.outreach-contact { display: flex; align-items: center; gap: 16px; padding: 12px 16px; border-bottom: 1px solid var(--border); transition: background 0.15s; cursor: pointer; }
+.outreach-contact:hover { background: var(--bg-hover); }
+
+/* Merge page */
+.merge-banner { padding: 16px; border-radius: 8px; display: flex; align-items: center; gap: 12px; }
+.merge-entry { padding: 12px; border-bottom: 1px solid var(--border); font-size: 14px; }
+
+/* Password Gate */
+.pw-overlay { position: fixed; inset: 0; background: var(--bg); z-index: 9999; display: flex; align-items: center; justify-content: center; }
+.pw-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 16px; padding: 40px; width: 380px; max-width: 90vw; text-align: center; }
+.pw-logo { display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 24px; }
+.pw-input { width: 100%; padding: 10px 14px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg); color: var(--text); font-size: 14px; margin: 16px 0; outline: none; text-align: center; }
+.pw-input:focus { border-color: var(--brand); }
+.pw-error { color: var(--red); font-size: 13px; margin-bottom: 12px; }
+.pw-btn { width: 100%; padding: 10px; border-radius: 8px; border: none; background: var(--brand); color: #000; font-size: 14px; font-weight: 600; cursor: pointer; }
+.pw-btn:hover { opacity: 0.9; }
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .stat-grid { grid-template-columns: repeat(2, 1fr); }
+  .tier-grid { grid-template-columns: repeat(2, 1fr); }
+  .two-col { flex-direction: column; }
+  .col-right { width: 100%; }
+}
+@media (max-width: 768px) {
+  .sidebar { display: none; }
+  .main { padding: 16px; }
+  .stat-grid { grid-template-columns: 1fr; }
+  .tier-grid { grid-template-columns: 1fr; }
+  .filters-row { flex-direction: column; align-items: stretch; }
+}
+
+/* Utility */
+.flex { display: flex; }
+.items-center { align-items: center; }
+.gap-2 { gap: 8px; }
+.gap-3 { gap: 12px; }
+.mt-2 { margin-top: 8px; }
+.mt-4 { margin-top: 16px; }
+.mt-6 { margin-top: 24px; }
+.mb-2 { margin-bottom: 8px; }
+.mb-4 { margin-bottom: 16px; }
+.mb-6 { margin-bottom: 24px; }
+.text-sm { font-size: 14px; }
+.text-xs { font-size: 12px; }
+.text-muted { color: var(--text-muted); }
+.font-bold { font-weight: 700; }
+.space-y > * + * { margin-top: 24px; }
+.hidden { display: none !important; }
+.truncate { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.w-full { width: 100%; }
+.text-right { text-align: right; }
+.text-center { text-align: center; }
+.flex-1 { flex: 1; min-width: 0; }
+.shrink-0 { flex-shrink: 0; }
+.nowrap { white-space: nowrap; }
+</style>
+</head>
+<body>
+
+<!-- Password Gate -->
+<div id="pw-gate" class="pw-overlay">
+  <div class="pw-card">
+    <div class="pw-logo">
+      <div class="sidebar-logo-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></div>
+      <span style="font-size:20px;font-weight:700">HappyTask <span style="font-size:11px;color:var(--text-muted);letter-spacing:2px">CRM</span></span>
+    </div>
+    <p style="color:var(--text-muted);font-size:14px;margin-bottom:8px">Enter password to continue</p>
+    <input type="password" id="pw-input" class="pw-input" placeholder="Password" autofocus>
+    <div id="pw-error" class="pw-error hidden"></div>
+    <button onclick="checkPassword()" class="pw-btn">Sign In</button>
+  </div>
+</div>
+
+<!-- App Shell -->
+<div id="app" class="app hidden">
+  <!-- Sidebar -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-logo" onclick="navigate('dashboard')">
+      <div class="sidebar-logo-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></div>
+      <span class="sidebar-logo-text">HappyTask<small>CRM</small></span>
+    </div>
+    <nav class="sidebar-nav" id="nav"></nav>
+    <div class="sidebar-footer">
+      <div class="sync-info" id="sync-info"></div>
+    </div>
+  </aside>
+  <!-- Main Content -->
+  <main class="main" id="main-content"></main>
+</div>
+
+<script>
+// =================== SVG Icons ===================
+const icons = {
+  dashboard: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>',
+  users: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>',
+  target: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>',
+  merge: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="18" r="3"/><circle cx="6" cy="6" r="3"/><path d="M6 21V9a9 9 0 0 0 9 9"/></svg>',
+  mail: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>',
+  sms: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>',
+  phone: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>',
+  pin: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="17" x2="12" y2="22"/><path d="M5 17h14v-1.76a2 2 0 0 0-1.11-1.79l-1.78-.89A2 2 0 0 1 15 10.76V6h1a2 2 0 0 0 0-4H8a2 2 0 0 0 0 4h1v4.76a2 2 0 0 1-1.11 1.79l-1.78.89A2 2 0 0 0 5 15.24z"/></svg>',
+  map: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>',
+  sun: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>',
+  moon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>',
+  search: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>',
+  arrowLeft: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>',
+  chevLeft: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>',
+  chevRight: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>',
+  sortBoth: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 15l5 5 5-5"/><path d="M7 9l5-5 5 5"/></svg>',
+  sortUp: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5"/><path d="M5 12l7-7 7 7"/></svg>',
+  sortDown: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14"/><path d="M19 12l-7 7-7-7"/></svg>',
+  alert: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>',
+  zap: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>',
+  send: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>',
+  eye: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>',
+  click: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 9l5 12 1.774-5.226L21 14 9 9z"/><path d="M16.071 16.071l4.243 4.243"/></svg>',
+  check: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>',
+  x: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>',
+  globe: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>',
+  download: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>',
+  flame: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg>',
+  tag: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>',
+  building: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z"/><path d="M6 12H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2"/><path d="M18 9h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-2"/><path d="M10 6h4"/><path d="M10 10h4"/><path d="M10 14h4"/><path d="M10 18h4"/></svg>',
+  calendar: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>',
+  clock: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>',
+  external: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>',
+  ban: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg>',
+  mailOpen: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.2 8.4c.5.38.8.97.8 1.6v10a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V10a2 2 0 0 1 .8-1.6l8-6a2 2 0 0 1 2.4 0l8 6Z"/><path d="m22 10-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 10"/></svg>',
+  userX: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="18" y1="8" x2="23" y2="13"/><line x1="23" y1="8" x2="18" y2="13"/></svg>',
+  mailWarning: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10.5V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v12c0 1.1.9 2 2 2h12.5"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/><path d="M20 14v4"/><path d="M20 22v.01"/></svg>',
+  phoneCall: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/><path d="M14.05 2a9 9 0 0 1 8 7.94"/><path d="M14.05 6A5 5 0 0 1 18 10"/></svg>',
+  layoutDashboard: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9"/><rect x="14" y="3" width="7" height="5"/><rect x="14" y="12" width="7" height="9"/><rect x="3" y="16" width="7" height="5"/></svg>',
+  hourglass: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 22h14"/><path d="M5 2h14"/><path d="M17 22v-4.172a2 2 0 0 0-.586-1.414L12 12l-4.414 4.414A2 2 0 0 0 7 17.828V22"/><path d="M7 2v4.172a2 2 0 0 0 .586 1.414L12 12l4.414-4.414A2 2 0 0 0 17 6.172V2"/></svg>',
+  bellRing: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/><path d="M4 2C2.8 3.7 2 5.7 2 8"/><path d="M22 8c0-2.3-.8-4.3-2-6"/></svg>',
+  bellOff: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8.7 3A6 6 0 0 1 18 8a21.3 21.3 0 0 0 .6 5"/><path d="M17 17H3s3-2 3-9a4.7 4.7 0 0 1 .3-1.7"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/><path d="m2 2 20 20"/></svg>',
+};
+
+// =================== Global State ===================
+let DATA = null;
+let currentTheme = 'light';
+localStorage.setItem('ht-theme', 'light');
+let state = {
+  search: '', lifecycle: 'all', engagement: 'all', accountType: 'all',
+  page: 0, limit: 25, sortBy: null, sortDir: 'desc',
+  selectedTier: null,
+  profileTab: 'sms',
+};
+
+// =================== Password ===================
+const PW = 'happytask2026';
+function checkPassword() {
+  const val = document.getElementById('pw-input').value;
+  if (val === PW) {
+    localStorage.setItem('ht-authed', '1');
+    document.getElementById('pw-gate').classList.add('hidden');
+    document.getElementById('app').classList.remove('hidden');
+    loadApp();
+  } else {
+    const err = document.getElementById('pw-error');
+    err.textContent = 'Incorrect password';
+    err.classList.remove('hidden');
+  }
+}
+document.getElementById('pw-input').addEventListener('keydown', e => { if (e.key === 'Enter') checkPassword(); });
+
+if (localStorage.getItem('ht-authed') === '1') {
+  document.getElementById('pw-gate').classList.add('hidden');
+  document.getElementById('app').classList.remove('hidden');
+  loadApp();
+}
+
+// =================== Theme ===================
+function applyTheme() {
+  document.documentElement.className = currentTheme === 'light' ? 'light' : '';
+  const btn = document.getElementById('theme-toggle');
+  if (btn) btn.innerHTML = (currentTheme === 'dark' ? icons.sun : icons.moon) + '<span>' + (currentTheme === 'dark' ? 'Light Mode' : 'Dark Mode') + '</span>';
+}
+function toggleTheme() {
+  currentTheme = currentTheme === 'dark' ? 'light' : 'dark';
+  localStorage.setItem('ht-theme', currentTheme);
+  applyTheme();
+}
+applyTheme();
+
+// =================== Time Utilities ===================
+function timeAgo(dateStr) {
+  if (!dateStr) return '';
+  const now = new Date();
+  const date = new Date(dateStr);
+  const diff = now - date;
+  const mins = Math.floor(diff / 60000);
+  if (mins < 1) return 'just now';
+  if (mins < 60) return mins + 'm ago';
+  const hrs = Math.floor(mins / 60);
+  if (hrs < 24) return hrs + 'h ago';
+  const days = Math.floor(hrs / 24);
+  if (days < 7) return days + 'd ago';
+  if (days < 30) return Math.floor(days / 7) + 'w ago';
+  if (days < 365) return Math.floor(days / 30) + 'mo ago';
+  return Math.floor(days / 365) + 'y ago';
+}
+function formatDate(dateStr) {
+  if (!dateStr) return '';
+  const d = new Date(dateStr);
+  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  return months[d.getMonth()] + ' ' + d.getDate() + ', ' + d.getFullYear();
+}
+function formatDateTime(dateStr) {
+  if (!dateStr) return '';
+  const d = new Date(dateStr);
+  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  let h = d.getHours(), m = d.getMinutes(), ampm = h >= 12 ? 'PM' : 'AM';
+  h = h % 12 || 12;
+  return months[d.getMonth()] + ' ' + d.getDate() + ', ' + h + ':' + String(m).padStart(2,'0') + ' ' + ampm;
+}
+function formatTime(dateStr) {
+  if (!dateStr) return '';
+  const d = new Date(dateStr);
+  let h = d.getHours(), m = d.getMinutes(), ampm = h >= 12 ? 'PM' : 'AM';
+  h = h % 12 || 12;
+  return h + ':' + String(m).padStart(2,'0') + ' ' + ampm;
+}
+function formatFullDate(dateStr) {
+  if (!dateStr) return '';
+  const d = new Date(dateStr);
+  const months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  return months[d.getMonth()] + ' ' + d.getDate() + ', ' + d.getFullYear();
+}
+function dateKey(dateStr) {
+  if (!dateStr) return '';
+  return new Date(dateStr).toISOString().split('T')[0];
+}
+function formatHours(hours) {
+  if (hours < 1) return Math.round(hours * 60) + 'm';
+  if (hours < 24) return hours.toFixed(1) + 'h';
+  const days = Math.floor(hours / 24);
+  const rem = hours % 24;
+  return days + 'd ' + Math.round(rem) + 'h';
+}
+function esc(s) { if (!s) return ''; const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+
+// =================== Data Loading ===================
+async function loadApp() {
+  try {
+    const res = await fetch('./data/crm-data.json');
+    DATA = await res.json();
+  } catch (e) {
+    document.getElementById('main-content').innerHTML = '<div style="padding:40px;text-align:center;color:var(--text-muted)"><p style="font-size:18px;font-weight:600;margin-bottom:8px">Data not found</p><p>Place crm-data.json in ./data/ directory</p></div>';
+    return;
+  }
+  buildNav();
+  applyTheme();
+  window.addEventListener('hashchange', route);
+  route();
+}
+
+// =================== Navigation ===================
+const NAV_ITEMS = [
+  { hash: 'dashboard', label: 'Dashboard', icon: 'dashboard' },
+  { hash: 'contacts', label: 'Contacts', icon: 'users' },
+  { hash: 'outreach', label: 'Outreach', icon: 'target' },
+  { hash: 'service-count', label: 'Service Count', icon: 'users' },
+  { hash: 'merge', label: 'Merge Review', icon: 'merge' },
+];
+function buildNav() {
+  const nav = document.getElementById('nav');
+  nav.innerHTML = NAV_ITEMS.map(n => `<a class="nav-link" data-hash="${n.hash}" onclick="navigate('${n.hash}')">${icons[n.icon]}<span>${n.label}</span></a>`).join('');
+  const si = document.getElementById('sync-info');
+  si.textContent = DATA.exported_at ? 'Last synced: ' + formatDateTime(DATA.exported_at) : '';
+}
+function navigate(hash) {
+  window.location.hash = '#' + hash;
+}
+function route() {
+  const hash = window.location.hash.slice(1) || 'dashboard';
+  document.querySelectorAll('.nav-link').forEach(el => {
+    el.classList.toggle('active', hash.startsWith(el.dataset.hash));
+  });
+  const main = document.getElementById('main-content');
+  if (hash === 'dashboard') renderDashboard(main);
+  else if (hash === 'contacts') renderContacts(main);
+  else if (hash.startsWith('contacts/')) renderContactProfile(main, hash.split('/')[1]);
+  else if (hash.startsWith('outreach')) {
+    // Restore selected tier from hash if present (e.g. outreach?tier=texted_no_reply)
+    const tierMatch = hash.match(/tier=([^&]+)/);
+    if (tierMatch) state.selectedTier = tierMatch[1];
+    renderOutreach(main);
+  }
+  else if (hash === 'service-count') renderServiceCount(main);
+  else if (hash === 'merge') renderMerge(main);
+  else renderDashboard(main);
+  main.scrollTop = 0;
+  window.scrollTo(0, 0);
+}
+
+// =================== Badge Helpers ===================
+function lifecycleBadge(stage) {
+  const map = { lead:'badge-blue', texted:'badge-purple', spoke_with:'badge-indigo', enrolled:'badge-brand', active_provider:'badge-green', active_client:'badge-cyan', churned:'badge-red' };
+  const labels = { lead:'Lead', texted:"SMS'd, No Reply", spoke_with:'Replied to SMS', enrolled:'Enrolled', active_provider:'Active Provider', active_client:'Active Client', churned:'Churned' };
+  return `<span class="badge ${map[stage]||'badge-gray'}">${labels[stage]||stage||'--'}</span>`;
+}
+function engagementBadge(status) {
+  const map = { hot:'badge-brand', engaged:'badge-green', warm:'badge-yellow', cold:'badge-gray', gone_dark:'badge-red', new:'badge-blue', churned:'badge-red' };
+  const labels = { hot:'Hot', engaged:'Engaged', warm:'Warm', cold:'Cold', gone_dark:'Gone Dark', new:'New', churned:'Churned' };
+  return `<span class="badge ${map[status]||'badge-gray'}">${labels[status]||status||'--'}</span>`;
+}
+function typeBadge(type) {
+  const map = { 'Service Provider':'badge-green', 'Client':'badge-blue', 'Zip Leads':'badge-purple', 'Paid Google Ad':'badge-yellow' };
+  return type ? `<span class="badge ${map[type]||'badge-gray'}">${esc(type)}</span>` : '<span class="text-muted">--</span>';
+}
+function dispositionBadge(d) {
+  if (!d || d === 'none') return '';
+  const map = { interested:'badge-green', hesitant:'badge-yellow', needs_callback:'badge-brand', no_show:'badge-red', not_interested:'badge-gray', left_voicemail:'badge-purple', scheduled_followup:'badge-blue', enrolled:'badge-green' };
+  return `<span class="badge ${map[d]||'badge-gray'}">${esc(d.replace(/_/g,' '))}</span>`;
+}
+
+// =================== Log Scale ===================
+function logScale(n, max) {
+  if (n === 0) return 0;
+  return (Math.log(n + 1) / Math.log(max + 1)) * 100;
+}
+
+// =================== DASHBOARD ===================
+function renderDashboard(el) {
+  const s = DATA.dashboardStats || {};
+  const actions = (DATA.todaysActions || []).filter(a => a.count > 0);
+
+  const statCards = [
+    { label: 'Total Contacts', value: s.total_contacts || 0, color: 'var(--brand)', bg: 'var(--brand-bg)', icon: icons.users },
+    { label: 'Active in Program', value: s.active_in_program || 0, color: 'var(--green)', bg: 'var(--green-bg)', icon: icons.check },
+    { label: 'At Risk', value: s.at_risk || 0, color: 'var(--yellow)', bg: 'var(--yellow-bg)', icon: icons.alert },
+    { label: 'Gone Dark', value: s.gone_dark || 0, color: 'var(--red)', bg: 'var(--red-bg)', icon: icons.moon },
+    { label: 'Emails Sent (30d)', value: s.emails_sent_30d || 0, color: 'var(--blue)', bg: 'var(--blue-bg)', icon: icons.mail },
+    { label: 'SMS Conversations (30d)', value: s.sms_conversations_30d || 0, color: 'var(--purple)', bg: 'var(--purple-bg)', icon: icons.sms },
+  ];
+
+  const lifecycleStages = [
+    { key: 'lead', label: 'Lead', color: '#3b82f6' },
+    { key: 'texted', label: "SMS'd, No Reply", color: '#8b5cf6' },
+    { key: 'spoke_with', label: 'Replied to SMS', color: '#6366f1' },
+    { key: 'enrolled', label: 'Enrolled', color: '#F7880C' },
+    { key: 'active_provider', label: 'Active Provider', color: '#22c55e' },
+    { key: 'active_client', label: 'Active Client', color: '#06b6d4' },
+    { key: 'churned', label: 'Churned', color: '#ef4444' },
+  ];
+  const engagementStatuses = [
+    { key: 'hot', label: 'Hot', color: '#F7880C' },
+    { key: 'engaged', label: 'Engaged', color: '#22c55e' },
+    { key: 'warm', label: 'Warm', color: '#f59e0b' },
+    { key: 'cold', label: 'Cold', color: '#64748b' },
+    { key: 'gone_dark', label: 'Gone Dark', color: '#ef4444' },
+    { key: 'new', label: 'New', color: '#3b82f6' },
+  ];
+
+  const pip = s.pipeline || {};
+  const eng = s.engagement || {};
+  const maxP = Math.max(...lifecycleStages.map(x => pip[x.key] || 0), 1);
+  const maxE = Math.max(...engagementStatuses.map(x => eng[x.key] || 0), 1);
+
+  let html = '<div class="space-y"><h1 style="font-size:24px;font-weight:700">Dashboard</h1>';
+
+  // Today's Actions
+  if (actions.length > 0) {
+    html += `<div class="card" style="border-color:rgba(247,136,12,0.3);background:var(--brand-bg2)">
+      <div class="card-header"><h3 style="display:flex;align-items:center;gap:8px"><span style="color:var(--brand)">${icons.zap}</span> Today's Actions</h3></div>
+      <div class="card-body" style="padding-top:0">`;
+    actions.forEach(a => {
+      html += `<div class="action-row" onclick="navigate('${a.link ? a.link.replace(/^\//,'') : 'contacts'}')">
+        <div class="action-dot" style="background:${esc(a.color)}"></div>
+        <div class="flex-1"><span class="action-title">${esc(a.title)}</span></div>
+        <span class="action-count">${a.count}</span>
+        <span style="color:var(--text-muted);opacity:0.4">${icons.chevRight}</span>
+      </div>`;
+    });
+    html += '</div></div>';
+  }
+
+  // Stat Cards
+  html += '<div class="stat-grid">';
+  statCards.forEach(c => {
+    html += `<div class="card stat-card">
+      <div class="stat-icon" style="background:${c.bg}"><span style="color:${c.color}">${c.icon}</span></div>
+      <div><div class="stat-value">${c.value}</div><div class="stat-label">${c.label}</div></div>
+    </div>`;
+  });
+  html += '</div>';
+
+  // Pipeline
+  html += '<div class="card"><div class="card-header"><h3>Pipeline</h3></div><div class="card-body">';
+  lifecycleStages.forEach(st => {
+    const count = pip[st.key] || 0;
+    const pct = logScale(count, maxP);
+    html += `<div class="bar-row"><span class="bar-label">${st.label}</span><div class="bar-track"><div class="bar-fill" style="width:${Math.max(pct,2)}%;background:${st.color}"></div></div><span class="bar-count">${count}</span></div>`;
+  });
+  html += '</div></div>';
+
+  // Engagement Distribution (bar chart)
+  html += '<div class="card"><div class="card-header"><h3>Engagement Distribution</h3></div><div class="card-body">';
+  engagementStatuses.forEach(st => {
+    const count = eng[st.key] || 0;
+    const pct = logScale(count, maxE);
+    html += `<div class="bar-row"><span class="bar-label" style="width:96px">${st.label}</span><div class="bar-track"><div class="bar-fill" style="width:${Math.max(pct,2)}%;background:${st.color}"></div></div><span class="bar-count">${count}</span></div>`;
+  });
+  html += '</div></div>';
+
+  html += '</div>';
+  el.innerHTML = html;
+}
+
+// =================== CONTACTS ===================
+function getFilteredContacts() {
+  let list = DATA.contacts || [];
+  const q = state.search.toLowerCase().trim();
+  if (q) {
+    const noteMap = {};
+    (DATA.notes || []).forEach(n => { if (!noteMap[n.contact_id]) noteMap[n.contact_id] = ''; noteMap[n.contact_id] += ' ' + (n.body || ''); });
+    const smsMap = {};
+    (DATA.smsMessages || []).forEach(m => { if (!smsMap[m.contact_id]) smsMap[m.contact_id] = ''; smsMap[m.contact_id] += ' ' + (m.body || ''); });
+    list = list.filter(c => {
+      const hay = [c.full_name, c.first_name, c.last_name, c.email, c.phone, c.last_note_preview, noteMap[c.id], smsMap[c.id]].filter(Boolean).join(' ').toLowerCase();
+      return hay.includes(q);
+    });
+  }
+  if (state.lifecycle !== 'all') list = list.filter(c => c.lifecycle_stage === state.lifecycle);
+  if (state.engagement !== 'all') list = list.filter(c => c.engagement_status === state.engagement);
+  if (state.accountType !== 'all') list = list.filter(c => c.account_type === state.accountType);
+
+  if (state.sortBy === 'activity_count') {
+    list = [...list].sort((a, b) => {
+      const ac = (a.email_count||0) + (a.sms_count||0) + (a.call_count||0);
+      const bc = (b.email_count||0) + (b.sms_count||0) + (b.call_count||0);
+      return state.sortDir === 'desc' ? bc - ac : ac - bc;
+    });
+  } else if (state.sortBy === 'last_activity') {
+    list = [...list].sort((a, b) => {
+      const at = a.last_activity_at ? new Date(a.last_activity_at).getTime() : 0;
+      const bt = b.last_activity_at ? new Date(b.last_activity_at).getTime() : 0;
+      return state.sortDir === 'desc' ? bt - at : at - bt;
+    });
+  }
+  return list;
+}
+
+function renderContacts(el) {
+  const all = getFilteredContacts();
+  const total = all.length;
+  const totalPages = Math.ceil(total / state.limit);
+  if (state.page >= totalPages && totalPages > 0) state.page = totalPages - 1;
+  const slice = all.slice(state.page * state.limit, (state.page + 1) * state.limit);
+
+  function sortIcon(field) {
+    if (state.sortBy !== field) return icons.sortBoth;
+    return state.sortDir === 'desc' ? icons.sortDown : icons.sortUp;
+  }
+  function sortClass(field) { return state.sortBy === field ? 'sort-active' : ''; }
+
+  let html = '<div class="space-y">';
+  html += `<div><h1 style="font-size:24px;font-weight:700">Contacts</h1><p class="text-sm text-muted" style="margin-top:2px">${total} contact${total!==1?'s':''} across all sources</p></div>`;
+
+  // Filters
+  html += `<div class="filters-row">
+    <div class="search-wrap" style="flex:1;max-width:360px">${icons.search}<input class="search-input" placeholder="Search name, email, phone, notes, SMS..." value="${esc(state.search)}" oninput="state.search=this.value;state.page=0;renderContacts(document.getElementById('main-content'))"></div>
+    <select class="select-input" onchange="state.accountType=this.value;state.page=0;renderContacts(document.getElementById('main-content'))">
+      <option value="all"${state.accountType==='all'?' selected':''}>All Types</option>
+      <option value="Service Provider"${state.accountType==='Service Provider'?' selected':''}>Service Provider</option>
+      <option value="Client"${state.accountType==='Client'?' selected':''}>Client</option>
+      <option value="Zip Leads"${state.accountType==='Zip Leads'?' selected':''}>Zip Leads</option>
+      <option value="Paid Google Ad"${state.accountType==='Paid Google Ad'?' selected':''}>Paid Google Ad</option>
+    </select>
+    <select class="select-input" onchange="state.lifecycle=this.value;state.page=0;renderContacts(document.getElementById('main-content'))">
+      <option value="all"${state.lifecycle==='all'?' selected':''}>All Stages</option>
+      <option value="lead"${state.lifecycle==='lead'?' selected':''}>Lead</option>
+      <option value="texted"${state.lifecycle==='texted'?' selected':''}>SMS'd, No Reply</option>
+      <option value="spoke_with"${state.lifecycle==='spoke_with'?' selected':''}>Replied to SMS</option>
+      <option value="enrolled"${state.lifecycle==='enrolled'?' selected':''}>Enrolled</option>
+      <option value="active_provider"${state.lifecycle==='active_provider'?' selected':''}>Active Provider</option>
+      <option value="active_client"${state.lifecycle==='active_client'?' selected':''}>Active Client</option>
+      <option value="churned"${state.lifecycle==='churned'?' selected':''}>Churned</option>
+    </select>
+    <select class="select-input" onchange="state.engagement=this.value;state.page=0;renderContacts(document.getElementById('main-content'))">
+      <option value="all"${state.engagement==='all'?' selected':''}>All Status</option>
+      <option value="new"${state.engagement==='new'?' selected':''}>New</option>
+      <option value="engaged"${state.engagement==='engaged'?' selected':''}>Engaged</option>
+      <option value="warm"${state.engagement==='warm'?' selected':''}>Warm</option>
+      <option value="hot"${state.engagement==='hot'?' selected':''}>Hot</option>
+      <option value="cold"${state.engagement==='cold'?' selected':''}>Cold</option>
+      <option value="gone_dark"${state.engagement==='gone_dark'?' selected':''}>Gone Dark</option>
+    </select>
+  </div>`;
+
+  // Table
+  html += '<div class="card"><div class="card-body-np"><div style="overflow-x:auto"><table><thead><tr>';
+  html += '<th>Contact</th><th>Type</th><th>Stage</th>';
+  html += `<th><button class="sort-btn ${sortClass('activity_count')}" onclick="toggleSort('activity_count')">Activity ${sortIcon('activity_count')}</button></th>`;
+  html += '<th>Source</th><th>Location</th>';
+  html += `<th><button class="sort-btn ${sortClass('last_activity')}" onclick="toggleSort('last_activity')">Last Active ${sortIcon('last_activity')}</button></th>`;
+  html += '</tr></thead><tbody>';
+
+  if (slice.length === 0) {
+    html += `<tr><td colspan="7" style="padding:48px;text-align:center;color:var(--text-muted)"><div style="opacity:0.3;margin-bottom:12px">${icons.users}</div><p style="font-weight:500">No contacts found</p></td></tr>`;
+  } else {
+    slice.forEach(c => {
+      const initial = (c.first_name?.[0] || c.email?.[0] || '?').toUpperCase();
+      const activityHtml = [];
+      if (c.email_count > 0) activityHtml.push(`<span class="activity-ind" style="color:var(--blue)">${icons.mail}${c.email_count}</span>`);
+      if (c.sms_count > 0) activityHtml.push(`<span class="activity-ind" style="color:var(--brand)">${icons.sms}${c.sms_count}</span>`);
+      if (c.call_count > 0) activityHtml.push(`<span class="activity-ind" style="color:var(--purple)">${icons.phone}${c.call_count}</span>`);
+      if (activityHtml.length === 0) activityHtml.push('<span class="activity-ind text-muted">None</span>');
+      const locationStr = [c.city, c.state].filter(Boolean).join(', ');
+
+      html += `<tr class="clickable" onclick="navigate('contacts/${c.id}')">
+        <td><div class="contact-cell">
+          <div class="avatar">${initial}</div>
+          <div class="contact-info">
+            <div class="contact-name">${esc(c.full_name)}</div>
+            <div class="contact-meta">
+              ${c.email ? '<span>' + icons.mail + ' ' + esc(c.email) + '</span>' : ''}
+              ${c.phone ? '<span>' + icons.phone + ' ' + esc(c.phone) + '</span>' : ''}
+              ${c.service_type ? '<span style="color:#F7880C;font-weight:500">' + esc(c.service_type) + '</span>' : ''}
+            </div>
+            ${c.last_note_preview ? '<div class="contact-note">' + esc(c.last_note_preview) + '</div>' : ''}
+          </div>
+        </div></td>
+        <td>${typeBadge(c.account_type)}</td>
+        <td><div>${lifecycleBadge(c.lifecycle_stage)}${c.sp_stage ? '<div style="font-size:10px;color:var(--text-muted);margin-top:2px">' + esc(c.sp_stage) + '</div>' : ''}</div></td>
+        <td><div class="flex items-center gap-2">${activityHtml.join('')}</div></td>
+        <td style="font-size:13px;color:var(--text-muted)">${c.source ? esc(c.source.toLowerCase().replace(/_/g,' ')) : '--'}</td>
+        <td>${locationStr ? '<div class="location-cell">' + icons.map + ' ' + esc(locationStr) + '</div>' : '<span class="text-muted">--</span>'}</td>
+        <td style="font-size:13px;color:var(--text-muted);white-space:nowrap">${c.last_activity_at ? timeAgo(c.last_activity_at) : '--'}</td>
+      </tr>`;
+    });
+  }
+  html += '</tbody></table></div>';
+
+  // Pagination
+  if (total > 0) {
+    html += `<div class="pagination">
+      <div class="flex items-center gap-3">
+        <span class="page-info">Showing ${state.page * state.limit + 1}--${Math.min((state.page+1)*state.limit, total)} of ${total}</span>
+        <div class="page-sizes">
+          ${[25,50,100].map(n => `<button class="page-size-btn${state.limit===n?' active':''}" onclick="state.limit=${n};state.page=0;renderContacts(document.getElementById('main-content'))">${n}</button>`).join('')}
+        </div>
+      </div>
+      <div class="page-nav">
+        <button ${state.page===0?'disabled':''} onclick="state.page--;renderContacts(document.getElementById('main-content'))">${icons.chevLeft}</button>
+        <button ${state.page>=totalPages-1?'disabled':''} onclick="state.page++;renderContacts(document.getElementById('main-content'))">${icons.chevRight}</button>
+      </div>
+    </div>`;
+  }
+
+  html += '</div></div></div>';
+  el.innerHTML = html;
+}
+
+function toggleSort(field) {
+  if (state.sortBy === field) {
+    if (state.sortDir === 'desc') state.sortDir = 'asc';
+    else { state.sortBy = null; state.sortDir = 'desc'; }
+  } else {
+    state.sortBy = field;
+    state.sortDir = 'desc';
+  }
+  state.page = 0;
+  renderContacts(document.getElementById('main-content'));
+}
+
+// =================== CONTACT PROFILE ===================
+function renderContactProfile(el, contactId) {
+  const c = (DATA.contacts || []).find(x => x.id === contactId);
+  if (!c) {
+    el.innerHTML = `<div style="padding:24px"><a onclick="history.back()" style="cursor:pointer;font-size:14px;color:var(--text-muted);display:flex;align-items:center;gap:6px">${icons.arrowLeft} Back</a><p style="margin-top:32px;text-align:center;color:var(--text-muted)">Contact not found</p></div>`;
+    return;
+  }
+
+  const emails = (DATA.emailEvents || []).filter(e => e.contact_id === contactId);
+  const sms = (DATA.smsMessages || []).filter(m => m.contact_id === contactId).sort((a,b) => new Date(a.sent_at) - new Date(b.sent_at));
+  const calls = (DATA.callLogs || []).filter(cl => cl.contact_id === contactId);
+  const notes = (DATA.notes || []).filter(n => n.contact_id === contactId).sort((a,b) => new Date(b.created_at) - new Date(a.created_at));
+  const sources = (DATA.contactSources || []).filter(s => s.contact_id === contactId);
+  const sequences = (DATA.emailSequences || []).filter(s => s.contact_id === contactId);
+  const contactTags = (DATA.contactTags || []).filter(ct => ct.contact_id === contactId);
+  const tags = contactTags.map(ct => (DATA.tags || []).find(t => t.id === ct.tag_id)).filter(Boolean);
+  const program = (DATA.programProgress || []).find(p => p.contact_id === contactId);
+
+  const initial = (c.first_name?.[0] || c.email?.[0] || '?').toUpperCase();
+  const signals = computeNegativeSignals(c, emails, sms, calls);
+  const heatmapData = buildHeatmap(contactId);
+  const responseMetrics = computeResponseTimes(sms);
+  const timeline = buildTimeline(contactId);
+
+  let html = '<div class="space-y" style="max-width:1200px">';
+
+  // Back
+  html += `<div class="flex items-center" style="justify-content:space-between"><a onclick="history.back()" style="cursor:pointer;font-size:14px;color:var(--text-muted);display:flex;align-items:center;gap:6px">${icons.arrowLeft} Back</a></div>`;
+
+  // Header Card
+  html += `<div class="card"><div class="profile-header">
+    <div class="avatar avatar-lg">${initial}</div>
+    <div class="flex-1" style="min-width:0">
+      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+        <h1 style="font-size:20px;font-weight:700">${esc(c.full_name)}</h1>
+        ${lifecycleBadge(c.lifecycle_stage)}
+        ${engagementBadge(c.engagement_status)}
+        ${c.account_type ? '<span class="badge badge-purple">' + esc(c.account_type) + '</span>' : ''}
+      </div>
+      <div class="profile-meta">
+        ${c.email ? '<span>' + icons.mail + ' ' + esc(c.email) + '</span>' : ''}
+        ${c.phone ? '<span>' + icons.phone + ' ' + esc(c.phone) + '</span>' : ''}
+        ${(c.city||c.state) ? '<span>' + icons.map + ' ' + esc([c.city,c.state].filter(Boolean).join(', ')) + '</span>' : ''}
+      </div>
+      ${tags.length > 0 ? '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:12px">' + tags.map(t => `<span class="badge" style="border-color:${t.color}40;color:${t.color}">${icons.tag} ${esc(t.name)}</span>`).join('') + '</div>' : ''}
+      <div class="profile-stats">
+        <span>${icons.mail} ${c.email_count || emails.length} emails</span>
+        <span>${icons.sms} ${c.sms_count || sms.length} SMS</span>
+        <span>${icons.phone} ${c.call_count || calls.length} calls</span>
+        ${c.source ? '<span>' + icons.globe + ' Source: ' + esc(c.source) + '</span>' : ''}
+        ${c.service_type ? '<span style="color:var(--brand)">' + icons.building + ' ' + esc(c.service_type) + '</span>' : ''}
+      </div>
+      <div class="mt-4"><div class="heatmap">${heatmapData}</div></div>
+    </div>
+  </div></div>`;
+
+  // Negative Signals
+  if (signals.length > 0) {
+    html += `<div class="card signals-card"><div class="card-body">
+      <div class="flex items-center gap-2 mb-2"><span style="color:var(--red)">${icons.alert}</span><span style="font-size:14px;font-weight:500;color:var(--red)">Attention Needed</span></div>
+      ${signals.map(s => `<div class="signal-row"><div class="signal-dot" style="background:${s.severity==='danger'?'var(--red)':'var(--yellow)'}"></div><span class="text-muted">${esc(s.message)}</span>${s.since ? '<span class="signal-since">since ' + timeAgo(s.since) + '</span>' : ''}</div>`).join('')}
+    </div></div>`;
+  }
+
+  // Two column layout
+  html += '<div class="two-col">';
+
+  // Left: Timeline
+  html += '<div class="col-left"><div class="card"><div class="card-header"><h3 style="text-transform:uppercase;letter-spacing:1px;color:var(--text-muted);font-size:12px">Timeline</h3></div><div class="card-body-np">';
+  if (timeline.length === 0) {
+    html += '<p style="padding:32px;text-align:center;color:var(--text-muted);font-size:14px">No activity yet</p>';
+  } else {
+    html += '<div style="max-height:calc(100vh - 320px);overflow-y:auto">';
+    timeline.forEach(evt => {
+      html += `<div class="timeline-row">
+        <div class="timeline-icon" style="color:${evt.color}">${evt.icon}</div>
+        <div class="flex-1" style="min-width:0"><div class="timeline-title">${esc(evt.title)}</div>${evt.description ? '<div class="timeline-desc">' + esc(evt.description) + '</div>' : ''}</div>
+        <div class="timeline-time">${timeAgo(evt.date)}</div>
+      </div>`;
+    });
+    html += '</div>';
+  }
+  html += '</div></div></div>';
+
+  // Right: Tabs
+  html += '<div class="col-right">';
+  const tabList = [
+    { id: 'sms', label: 'SMS (' + sms.length + ')' },
+    { id: 'emails', label: 'Emails (' + emails.length + ')' },
+    { id: 'notes', label: 'Notes (' + notes.length + ')' },
+    { id: 'details', label: 'Details' },
+  ];
+  html += '<div class="tabs-bar">';
+  tabList.forEach(t => {
+    html += `<button class="tab-btn${state.profileTab===t.id?' active':''}" onclick="switchTab('${t.id}')">${t.label}</button>`;
+  });
+  html += '</div>';
+
+  // SMS Tab
+  html += `<div class="tab-content${state.profileTab==='sms'?' active':''}" id="tab-sms"><div class="card">`;
+  if (sms.length === 0) {
+    html += '<p style="padding:32px;text-align:center;color:var(--text-muted);font-size:14px">No SMS messages</p>';
+  } else {
+    html += '<div class="sms-container">';
+    let prevDate = '';
+    sms.forEach(msg => {
+      const dk = dateKey(msg.sent_at);
+      if (dk !== prevDate) {
+        html += `<div class="sms-separator"><div class="sms-separator-line"></div><span>${formatFullDate(msg.sent_at)}</span><div class="sms-separator-line"></div></div>`;
+        prevDate = dk;
+      }
+      html += `<div class="sms-bubble-wrap ${msg.direction}"><div class="sms-bubble ${msg.direction}">${esc(msg.body)}<div class="sms-time">${formatTime(msg.sent_at)}</div></div></div>`;
+    });
+    html += '</div>';
+  }
+  html += '</div></div>';
+
+  // Emails Tab
+  html += `<div class="tab-content${state.profileTab==='emails'?' active':''}" id="tab-emails"><div class="card"><div class="card-body-np">`;
+
+  // Sequence progress
+  if (sequences.length > 0) {
+    sequences.forEach(seq => {
+      html += `<div style="padding:16px;border-bottom:1px solid var(--border)">
+        <div class="flex items-center" style="justify-content:space-between"><span style="font-size:14px;font-weight:500">${esc(seq.sequence_name)}</span><span class="badge badge-gray">Step ${seq.current_step} of ${seq.total_steps}</span></div>
+        <div class="seq-bar mt-2">${Array.from({length:seq.total_steps}).map((_,i) => `<div class="seq-step${i<seq.current_step?' done':''}"></div>`).join('')}</div>
+      </div>`;
+    });
+  }
+
+  // Group emails by subject
+  if (emails.length === 0) {
+    html += '<p style="padding:32px;text-align:center;color:var(--text-muted);font-size:14px">No email events</p>';
+  } else {
+    const bySubject = new Map();
+    emails.forEach(evt => {
+      const key = evt.email_subject || evt.id;
+      if (!bySubject.has(key)) bySubject.set(key, []);
+      bySubject.get(key).push(evt);
+    });
+    bySubject.forEach((events, subject) => {
+      const types = new Set(events.map(e => (e.event_type||'').toLowerCase()));
+      const sent = types.has('requests') || types.has('sent') || types.has('delivered');
+      const delivered = types.has('delivered');
+      const opened = types.has('opened') || types.has('loadedbyproxy');
+      const clicked = types.has('clicks') || types.has('clicked');
+      const bounced = types.has('bounced') || types.has('hardbounce') || types.has('softbounce');
+      const unsub = types.has('unsubscribed');
+      const sorted = [...events].sort((a,b) => new Date(a.event_at) - new Date(b.event_at));
+      const sentDate = sorted[0]?.event_at;
+      const clickedUrls = [...new Set(events.filter(e => e.link_clicked).map(e => e.link_clicked))];
+
+      html += `<div class="email-row"><div class="flex items-center" style="justify-content:space-between;gap:12px"><div class="flex-1" style="min-width:0">
+        <div class="email-subject">${esc(subject) || '(no subject)'}</div>
+        <div class="email-badges">
+          ${sent ? '<span class="email-badge" style="color:var(--blue)">' + icons.send + ' Sent</span>' : ''}
+          ${delivered ? '<span class="email-badge" style="color:var(--sky)">' + icons.check + ' Delivered</span>' : ''}
+          ${opened ? '<span class="email-badge" style="color:var(--green)">' + icons.eye + ' Opened</span>' : ''}
+          ${clicked ? '<span class="email-badge" style="color:var(--brand)">' + icons.click + ' Clicked</span>' : ''}
+          ${clickedUrls.map(url => `<a href="${esc(url)}" target="_blank" rel="noopener" class="email-badge" style="color:var(--brand);opacity:0.7">${icons.globe} ${esc(url.replace(/^https?:\/\//,'').substring(0,40))}</a>`).join('')}
+          ${bounced ? '<span class="email-badge" style="color:var(--red)">' + icons.x + ' Bounced</span>' : ''}
+          ${unsub ? '<span class="email-badge" style="color:var(--red)">' + icons.x + ' Unsubscribed</span>' : ''}
+        </div>
+      </div><span class="email-date">${formatDateTime(sentDate)}</span></div></div>`;
+    });
+  }
+  html += '</div></div></div>';
+
+  // Notes Tab
+  html += `<div class="tab-content${state.profileTab==='notes'?' active':''}" id="tab-notes"><div class="card"><div class="card-body">`;
+
+  // HubSpot button
+  html += `<div style="margin-bottom:16px;padding:12px;border-radius:8px;background:var(--bg-muted);border:1px solid var(--border);display:flex;align-items:center;justify-content:space-between">
+    <span style="font-size:13px;color:var(--text-muted)">To add notes, use HubSpot</span>
+    <a href="https://app.hubspot.com/contacts/46816421/record/0-1/${encodeURIComponent(c.email || c.id)}" target="_blank" rel="noopener" class="btn btn-sm" style="gap:6px">${icons.external} Add Note via HubSpot</a>
+  </div>`;
+
+  if (notes.length === 0) {
+    html += '<p style="padding:16px;text-align:center;color:var(--text-muted);font-size:14px">No notes</p>';
+  } else {
+    notes.forEach(n => {
+      html += `<div class="note-card">
+        <div class="note-header"><div class="flex items-center gap-2">${n.pinned ? '<span style="color:var(--brand)">' + icons.pin + '</span>' : ''}${dispositionBadge(n.disposition)}</div></div>
+        <div class="note-body">${esc(n.body)}</div>
+        <div class="note-date">${formatDateTime(n.created_at)}</div>
+      </div>`;
+    });
+  }
+  html += '</div></div></div>';
+
+  // Details Tab
+  html += `<div class="tab-content${state.profileTab==='details'?' active':''}" id="tab-details">`;
+
+  // Account & Service
+  html += `<div class="card mb-4"><div class="card-header"><h3 style="font-size:14px">Account & Service</h3></div><div class="card-body">
+    ${detailRow('Account Type', c.account_type)}
+    ${detailRow('SP Stage', c.sp_stage)}
+    ${detailRow('Client Stage', c.client_stage)}
+    ${detailRow('Service Interest', c.service_type)}
+    ${detailRow('Signed Up', c.has_signed_up)}
+    ${detailRow('Signup Source', c.signup_source)}
+    ${detailRow('Automation Status', c.automation_status)}
+    ${c.profile_link ? '<div class="detail-row"><span class="detail-label">Profile</span><a href="' + esc(c.profile_link) + '" target="_blank" rel="noopener" style="color:var(--brand);font-size:12px">View Profile</a></div>' : ''}
+  </div></div>`;
+
+  // Attribution
+  html += `<div class="card mb-4"><div class="card-header"><h3 style="font-size:14px">Attribution</h3></div><div class="card-body">
+    ${detailRow('Source', c.source)}
+    ${detailRow('Source Detail', c.source_detail)}
+    ${detailRow('UTM Source', c.utm_source)}
+    ${detailRow('UTM Medium', c.utm_medium)}
+    ${detailRow('UTM Campaign', c.utm_campaign)}
+  </div></div>`;
+
+  // Communication Prefs
+  html += `<div class="card mb-4"><div class="card-header"><h3 style="font-size:14px">Communication Preferences</h3></div><div class="card-body">
+    ${detailRow('Preferred', c.communication_pref)}
+    ${detailRow('Email Consent', c.email_consent ? 'Yes' : 'No')}
+    ${detailRow('SMS Consent', c.sms_consent ? 'Yes' : 'No')}
+    ${detailRow('Do Not Contact', c.do_not_contact ? 'YES' : 'No')}
+  </div></div>`;
+
+  // Timestamps
+  html += `<div class="card mb-4"><div class="card-header"><h3 style="font-size:14px">Activity Timestamps</h3></div><div class="card-body">
+    ${detailRow('Created', formatDate(c.created_at))}
+    ${detailRow('Last Contacted', c.last_contacted_at ? timeAgo(c.last_contacted_at) : null)}
+    ${detailRow('Last Responded', c.last_responded_at ? timeAgo(c.last_responded_at) : null)}
+    ${detailRow('Last Activity', c.last_activity_at ? timeAgo(c.last_activity_at) : null)}
+  </div></div>`;
+
+  // Response Metrics
+  html += `<div class="card mb-4"><div class="card-header"><h3 style="font-size:14px">Response Time Metrics</h3></div><div class="card-body">
+    ${detailRow('Avg Response (Them)', responseMetrics.avgThem != null ? formatHours(responseMetrics.avgThem) : null)}
+    ${detailRow('Avg Response (Us)', responseMetrics.avgUs != null ? formatHours(responseMetrics.avgUs) : null)}
+    ${detailRow('Fastest Reply (Them)', responseMetrics.fastest != null ? formatHours(responseMetrics.fastest) : null)}
+  </div></div>`;
+
+  // Connected Systems
+  html += `<div class="card mb-4"><div class="card-header"><h3 style="font-size:14px">Connected Systems</h3></div><div class="card-body">`;
+  if (sources.length === 0) {
+    html += '<p style="color:var(--text-muted);font-size:14px">None</p>';
+  } else {
+    sources.forEach(s => {
+      const sysColor = s.source_system === 'hubspot' ? 'var(--brand)' : s.source_system === 'brevo' ? 'var(--blue)' : 'var(--green)';
+      html += `<div class="flex items-center" style="justify-content:space-between;margin-bottom:8px">
+        <span class="badge" style="border-color:${sysColor}40;color:${sysColor}">${esc(s.source_system)}</span>
+        <span style="font-size:12px;color:var(--text-muted)">ID: ${esc(s.external_id)} -- Synced ${s.last_synced_at ? timeAgo(s.last_synced_at) : 'never'}</span>
+      </div>`;
+    });
+  }
+  html += '</div></div>';
+
+  html += '</div>'; // end details tab
+  html += '</div>'; // end col-right
+  html += '</div>'; // end two-col
+  html += '</div>'; // end space-y
+  el.innerHTML = html;
+}
+
+function switchTab(id) {
+  state.profileTab = id;
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.textContent.toLowerCase().startsWith(id)));
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.toggle('active', t.id === 'tab-' + id));
+}
+
+function detailRow(label, value) {
+  return `<div class="detail-row"><span class="detail-label">${esc(label)}</span><span class="detail-value">${value ? esc(String(value)) : '--'}</span></div>`;
+}
+
+function computeNegativeSignals(c, emails, sms, calls) {
+  const signals = [];
+  const sentEmails = emails.filter(e => ['sent','delivered','requests'].includes((e.event_type||'').toLowerCase()));
+  const openedEmails = emails.filter(e => ['opened','loadedbyproxy','clicks','clicked'].includes((e.event_type||'').toLowerCase()));
+  if (sentEmails.length > 0 && openedEmails.length === 0) {
+    signals.push({ severity: 'warning', message: sentEmails.length + ' emails sent, none opened', since: null });
+  }
+  const outSms = sms.filter(m => m.direction === 'outbound');
+  const inSms = sms.filter(m => m.direction === 'inbound');
+  if (outSms.length > 0 && inSms.length === 0) {
+    signals.push({ severity: 'warning', message: outSms.length + ' SMS sent, no reply received', since: outSms[outSms.length-1]?.sent_at });
+  }
+  const recentCalls = [...calls].sort((a,b) => new Date(b.started_at) - new Date(a.started_at));
+  let vmStreak = 0;
+  for (const cl of recentCalls) { if (cl.outcome === 'voicemail' || cl.outcome === 'no_answer') vmStreak++; else break; }
+  if (vmStreak >= 2) {
+    signals.push({ severity: vmStreak >= 3 ? 'danger' : 'warning', message: vmStreak + ' consecutive voicemails/no answers', since: recentCalls[0]?.started_at });
+  }
+  if (c.engagement_status === 'gone_dark') {
+    signals.push({ severity: 'danger', message: 'Contact has gone dark', since: c.gone_dark_since });
+  }
+  return signals;
+}
+
+function buildHeatmap(contactId) {
+  const now = new Date();
+  const dayMs = 86400000;
+  const dayMap = {};
+
+  ['emailEvents','smsMessages','callLogs'].forEach(key => {
+    (DATA[key] || []).filter(e => e.contact_id === contactId).forEach(e => {
+      const d = dateKey(e.event_at || e.sent_at || e.started_at);
+      if (d) dayMap[d] = (dayMap[d] || 0) + 1;
+    });
+  });
+
+  let html = '';
+  const startDate = new Date(now.getTime() - 89 * dayMs);
+  const startDay = startDate.getDay();
+  const totalDays = 90;
+
+  const weeks = [];
+  let currentWeek = [];
+  for (let i = 0; i < startDay; i++) currentWeek.push(null);
+  for (let i = 0; i < totalDays; i++) {
+    const d = new Date(startDate.getTime() + i * dayMs);
+    currentWeek.push(dateKey(d.toISOString()));
+    if (currentWeek.length === 7) {
+      weeks.push(currentWeek);
+      currentWeek = [];
+    }
+  }
+  if (currentWeek.length > 0) {
+    while (currentWeek.length < 7) currentWeek.push(null);
+    weeks.push(currentWeek);
+  }
+
+  weeks.forEach(week => {
+    html += '<div class="heatmap-col">';
+    week.forEach(day => {
+      if (!day) { html += '<div class="heatmap-cell"></div>'; return; }
+      const count = dayMap[day] || 0;
+      const cls = count === 0 ? '' : count <= 1 ? 'hm-1' : count <= 3 ? 'hm-2' : count <= 6 ? 'hm-3' : 'hm-4';
+      html += `<div class="heatmap-cell ${cls}" title="${day}: ${count} events"></div>`;
+    });
+    html += '</div>';
+  });
+  return html;
+}
+
+function buildTimeline(contactId) {
+  const events = [];
+  const iconColorMap = {
+    email_sent: { icon: icons.send, color: 'var(--blue)' },
+    email_opened: { icon: icons.eye, color: 'var(--green)' },
+    email_clicked: { icon: icons.click, color: 'var(--brand)' },
+    sms_sent: { icon: icons.send, color: 'var(--brand)' },
+    sms_received: { icon: icons.sms, color: 'var(--green)' },
+    call_made: { icon: icons.phone, color: 'var(--purple)' },
+    call_received: { icon: icons.phone, color: 'var(--purple)' },
+    note_added: { icon: icons.sms, color: 'var(--text-muted)' },
+  };
+
+  (DATA.emailEvents || []).filter(e => e.contact_id === contactId).forEach(e => {
+    const type = (e.event_type||'').toLowerCase();
+    let evtType = 'email_sent';
+    if (type.includes('open') || type === 'loadedbyproxy') evtType = 'email_opened';
+    else if (type.includes('click')) evtType = 'email_clicked';
+    const ic = iconColorMap[evtType] || { icon: icons.mail, color: 'var(--text-muted)' };
+    events.push({ title: 'Email ' + type, description: e.email_subject, date: e.event_at, icon: ic.icon, color: ic.color });
+  });
+
+  (DATA.smsMessages || []).filter(m => m.contact_id === contactId).forEach(m => {
+    const evtType = m.direction === 'outbound' ? 'sms_sent' : 'sms_received';
+    const ic = iconColorMap[evtType];
+    events.push({ title: m.direction === 'outbound' ? 'SMS sent' : 'SMS received', description: m.body ? (m.body.substring(0, 80) + (m.body.length > 80 ? '...' : '')) : '', date: m.sent_at, icon: ic.icon, color: ic.color });
+  });
+
+  (DATA.callLogs || []).filter(cl => cl.contact_id === contactId).forEach(cl => {
+    const ic = iconColorMap.call_made;
+    events.push({ title: cl.direction === 'outbound' ? 'Call made' : 'Call received', description: cl.outcome + (cl.duration_seconds ? ' (' + cl.duration_seconds + 's)' : ''), date: cl.started_at, icon: ic.icon, color: ic.color });
+  });
+
+  (DATA.notes || []).filter(n => n.contact_id === contactId).forEach(n => {
+    const ic = iconColorMap.note_added;
+    events.push({ title: 'Note added', description: n.body ? (n.body.substring(0, 80) + (n.body.length > 80 ? '...' : '')) : '', date: n.created_at, icon: ic.icon, color: ic.color });
+  });
+
+  events.sort((a, b) => new Date(b.date) - new Date(a.date));
+  return events;
+}
+
+function computeResponseTimes(sms) {
+  const sorted = [...sms].sort((a,b) => new Date(a.sent_at) - new Date(b.sent_at));
+  const themTimes = [];
+  const usTimes = [];
+
+  for (let i = 1; i < sorted.length; i++) {
+    const prev = sorted[i-1];
+    const curr = sorted[i];
+    const diffHours = (new Date(curr.sent_at) - new Date(prev.sent_at)) / 3600000;
+    if (prev.direction === 'outbound' && curr.direction === 'inbound') {
+      themTimes.push(diffHours);
+    } else if (prev.direction === 'inbound' && curr.direction === 'outbound') {
+      usTimes.push(diffHours);
+    }
+  }
+  return {
+    avgThem: themTimes.length > 0 ? themTimes.reduce((a,b) => a+b, 0) / themTimes.length : null,
+    avgUs: usTimes.length > 0 ? usTimes.reduce((a,b) => a+b, 0) / usTimes.length : null,
+    fastest: themTimes.length > 0 ? Math.min(...themTimes) : null,
+  };
+}
+
+// =================== OUTREACH (13 Independent Tiers) ===================
+function computeOutreachTiers() {
+  const contacts = DATA.contacts || [];
+  const emailEvents = DATA.emailEvents || [];
+  const smsMessages = DATA.smsMessages || [];
+  const programProgress = DATA.programProgress || [];
+
+  // Build lookup sets
+  const openedContactIds = new Set();
+  const clickedContactIds = new Set();
+  const sentContactIds = new Set();
+  const emailedContactIds = new Set();
+  const smsOutContactIds = new Set();
+  const smsInContactIds = new Set();
+  const bouncedContactIds = new Set();
+  const unsubContactIds = new Set();
+
+  emailEvents.forEach(e => {
+    if (!e.contact_id) return;
+    const t = (e.event_type || '').toLowerCase();
+    emailedContactIds.add(e.contact_id);
+    if (['sent','delivered','requests'].includes(t)) sentContactIds.add(e.contact_id);
+    if (['opened','loadedbyproxy','clicks','clicked'].includes(t)) openedContactIds.add(e.contact_id);
+    if (['clicks','clicked'].includes(t)) clickedContactIds.add(e.contact_id);
+    if (['bounced','hardbounce','softbounce'].includes(t)) bouncedContactIds.add(e.contact_id);
+    if (['unsubscribed','spam_report'].includes(t)) unsubContactIds.add(e.contact_id);
+  });
+  smsMessages.forEach(m => {
+    if (!m.contact_id) return;
+    if (m.direction === 'outbound') smsOutContactIds.add(m.contact_id);
+    if (m.direction === 'inbound') smsInContactIds.add(m.contact_id);
+  });
+
+  // Build SMS timeline per contact for "waiting on us" logic
+  const lastInboundNoReply = new Set();
+  const smsByContact = {};
+  smsMessages.forEach(m => {
+    if (!m.contact_id) return;
+    if (!smsByContact[m.contact_id]) smsByContact[m.contact_id] = [];
+    smsByContact[m.contact_id].push(m);
+  });
+  Object.entries(smsByContact).forEach(([cid, msgs]) => {
+    const sorted = msgs.sort((a,b) => new Date(a.sent_at) - new Date(b.sent_at));
+    // Find inbound messages where there's no outbound after them
+    for (const msg of sorted) {
+      if (msg.direction === 'inbound') {
+        const hasReplyAfter = sorted.some(m2 => m2.direction === 'outbound' && new Date(m2.sent_at) > new Date(msg.sent_at));
+        if (!hasReplyAfter) {
+          lastInboundNoReply.add(cid);
+          break;
+        }
+      }
+    }
+  });
+
+  // Program progress lookup
+  const stalledIds = new Set();
+  programProgress.forEach(p => {
+    if (p.status === 'active' && ['at_risk','behind'].includes(p.risk_level)) {
+      stalledIds.add(p.contact_id);
+    }
+  });
+
+  // Helper: not SP/Client and not DNC
+  function isNotSpClientDnc(c) {
+    return c.account_type !== 'Service Provider' && c.account_type !== 'Client' && !c.do_not_contact;
+  }
+
+  // All 13 tiers - INDEPENDENT (not mutually exclusive)
+  const tierDefs = [
+    {
+      id: 'texted_no_reply', name: 'Texted, No Reply',
+      desc: 'We sent them a text but they never responded. Follow up with another text or try calling.',
+      color: '#F7880C', priority: 1, icon: icons.sms,
+      filter: c => smsOutContactIds.has(c.id) && !smsInContactIds.has(c.id) && isNotSpClientDnc(c),
+    },
+    {
+      id: 'opened_email_never_texted', name: 'Opened Email, Not Texted',
+      desc: 'They opened at least one email showing interest but we have never texted them. They have a phone number ready.',
+      color: '#22c55e', priority: 2, icon: icons.mailOpen,
+      filter: c => openedContactIds.has(c.id) && c.phone && !smsOutContactIds.has(c.id) && isNotSpClientDnc(c),
+    },
+    {
+      id: 'clicked_link', name: 'Clicked Link in Email',
+      desc: 'They clicked a link in our email. This is the strongest intent signal. High priority to text or call.',
+      color: '#10b981', priority: 3, icon: icons.click,
+      filter: c => clickedContactIds.has(c.id) && c.phone && isNotSpClientDnc(c),
+    },
+    {
+      id: 'emailed_not_texted', name: 'Emailed, Never Texted',
+      desc: 'We emailed them (opened or not) but never texted. They have a phone number we can try.',
+      color: '#3b82f6', priority: 4, icon: icons.send,
+      filter: c => emailedContactIds.has(c.id) && c.phone && !smsOutContactIds.has(c.id) && isNotSpClientDnc(c),
+    },
+    {
+      id: 'emailed_never_opened', name: 'Emailed, Never Opened',
+      desc: 'We sent emails but they never opened any. Have a phone number so try SMS or call instead.',
+      color: '#6366f1', priority: 5, icon: icons.mailWarning,
+      filter: c => sentContactIds.has(c.id) && !openedContactIds.has(c.id) && c.phone && isNotSpClientDnc(c),
+    },
+    {
+      id: 'never_emailed_has_phone', name: 'Has Phone, Never Reached Out',
+      desc: 'We have never emailed or texted them but they have a phone number. Completely fresh outreach.',
+      color: '#8b5cf6', priority: 6, icon: icons.phoneCall,
+      filter: c => c.phone && !emailedContactIds.has(c.id) && !smsOutContactIds.has(c.id) && !smsInContactIds.has(c.id) && isNotSpClientDnc(c),
+    },
+    {
+      id: 'replied_not_signed_up', name: 'Replied, Never Signed Up',
+      desc: 'They actually texted us back showing real interest but never became a Service Provider. A quick follow-up could close them.',
+      color: '#f43f5e', priority: 7, icon: icons.flame,
+      filter: c => smsInContactIds.has(c.id) && isNotSpClientDnc(c),
+    },
+    {
+      id: 'signed_up_stalled', name: 'Signed Up, Stalled',
+      desc: 'They signed up as a Service Provider but have not made it into the dashboard yet. Mirrors the Onboarding bucket on Service Count.',
+      color: '#d946ef', priority: 8, icon: icons.sms,
+      filter: c => c.account_type === 'Service Provider'
+        && (c.lifecycle_stage === 'enrolled' || c.lifecycle_stage === 'active_provider')
+        && !c.in_dashboard,
+    },
+    {
+      id: 'waiting_on_us', name: 'Waiting on Us',
+      desc: 'They replied to our text but we never responded back. We are actively losing these people by not following up.',
+      color: '#e11d48', priority: 9, icon: icons.phoneCall,
+      filter: c => lastInboundNoReply.has(c.id),
+    },
+    {
+      id: 'paid_ad_never_engaged', name: 'Google Ad, Never Engaged',
+      desc: 'Came from a paid Google Ad (cost us money) but never opened an email or replied to a text. Try calling or a different approach.',
+      color: '#ea580c', priority: 10, icon: icons.ban,
+      filter: c => c.source === 'PAID_SEARCH' && !openedContactIds.has(c.id) && !smsInContactIds.has(c.id) && !c.do_not_contact,
+    },
+    {
+      id: 'engaged_went_cold', name: 'Was Engaged, Went Cold',
+      desc: 'They were active (opened emails or replied to texts) but have gone quiet for 14+ days. A re-engagement text could bring them back.',
+      color: '#0ea5e9', priority: 11, icon: icons.mailWarning,
+      filter: c => c.engagement_status === 'cold' && (openedContactIds.has(c.id) || smsInContactIds.has(c.id)) && isNotSpClientDnc(c),
+    },
+    {
+      id: 'never_contacted', name: 'No Phone, Never Contacted',
+      desc: 'We have never emailed or texted them and have no phone number. Email-only outreach or need to find their number.',
+      color: '#64748b', priority: 12, icon: icons.userX,
+      filter: c => !c.phone && !emailedContactIds.has(c.id) && isNotSpClientDnc(c),
+    },
+    {
+      id: 'do_not_contact', name: 'Do Not Contact',
+      desc: 'Unsubscribed, bounced, replied "no/stop", or marked do-not-contact. Do NOT reach out.',
+      color: '#ef4444', priority: 13, icon: icons.ban,
+      filter: c => c.do_not_contact || c.email_consent === 0 || c.sms_consent === 0,
+    },
+  ];
+
+  return tierDefs.map(def => {
+    const list = contacts.filter(def.filter);
+    return { ...def, contacts: list, count: list.length };
+  });
+}
+
+function renderOutreach(el) {
+  const tiers = computeOutreachTiers();
+  window._outreachTiers = tiers;
+
+  let html = '<div class="space-y">';
+  html += `<div><h1 style="font-size:24px;font-weight:700;display:flex;align-items:center;gap:8px"><span style="color:var(--brand)">${icons.target}</span> Outreach Priority</h1><p class="text-sm text-muted" style="margin-top:2px">Contacts ranked by outreach priority. Tiers are independent -- a contact can appear in multiple tiers.</p></div>`;
+
+  // Tier Cards
+  html += '<div class="tier-grid">';
+  tiers.forEach(t => {
+    const selected = state.selectedTier === t.id;
+    html += `<div class="card tier-card${selected?' selected':''}" style="${selected ? 'border-color:'+t.color : ''}" onclick="selectTier('${t.id}')">
+      <div class="card-body">
+        <div class="tier-header">
+          <div class="flex items-center gap-2">
+            <div class="tier-icon" style="background:${t.color}15"><span style="color:${t.color}">${t.icon}</span></div>
+            <div><div class="tier-count">${t.count}</div><div class="tier-priority">Tier ${t.priority}</div></div>
+          </div>
+          <span class="badge" style="border-color:${t.color}40;color:${t.color}">P${t.priority}</span>
+        </div>
+        <div class="tier-name">${esc(t.name)}</div>
+        <div class="tier-desc">${esc(t.desc)}</div>
+      </div>
+    </div>`;
+  });
+  html += '</div>';
+
+  // Selected Tier Contact List
+  const st = tiers.find(t => t.id === state.selectedTier);
+  if (st) {
+    html += `<div class="card"><div style="padding:16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between">
+      <div><h2 style="font-size:16px;font-weight:600;color:${st.color}">${esc(st.name)}</h2><p style="font-size:12px;color:var(--text-muted);margin-top:2px">${esc(st.desc)}</p></div>
+      <div class="flex items-center gap-2">
+        <button class="btn btn-sm" onclick="exportTierCSV('${st.id}')">${icons.download} Export CSV</button>
+        <span class="badge" style="border-color:${st.color}40;color:${st.color};font-size:14px;font-weight:700">${st.count}</span>
+      </div>
+    </div>`;
+
+    if (st.contacts.length === 0) {
+      html += '<p style="padding:32px;text-align:center;color:var(--text-muted);font-size:14px">No contacts in this tier</p>';
+    } else {
+      if (!state.tierLimit) state.tierLimit = 25;
+      if (!state.tierPage) state.tierPage = 0;
+      const slice = st.contacts.slice(state.tierPage * state.tierLimit, (state.tierPage + 1) * state.tierLimit);
+      slice.forEach(c => {
+        const emailCount = (DATA.emailEvents || []).filter(e => e.contact_id === c.id).length;
+        const smsCount = (DATA.smsMessages || []).filter(m => m.contact_id === c.id).length;
+        const locationStr = [c.city, c.state].filter(Boolean).join(', ');
+        html += `<div class="outreach-contact" onclick="navigate('contacts/${c.id}')">
+          <div class="avatar">${(c.full_name?.[0]||'?').toUpperCase()}</div>
+          <div class="flex-1" style="min-width:0">
+            <div style="font-size:14px;font-weight:500" class="truncate">${esc(c.full_name)}</div>
+            <div style="display:flex;gap:12px;font-size:11px;color:var(--text-muted);margin-top:2px">
+              ${c.email ? '<span class="flex items-center gap-2">' + icons.mail + ' ' + esc(c.email) + '</span>' : ''}
+              ${c.phone ? '<span class="flex items-center gap-2">' + icons.phone + ' ' + esc(c.phone) + '</span>' : ''}
+              ${c.service_type ? '<span style="color:var(--brand);font-weight:500">' + esc(c.service_type) + '</span>' : ''}
+            </div>
+          </div>
+          <div class="flex items-center gap-2 shrink-0">
+            ${emailCount > 0 ? '<span class="activity-ind" style="color:var(--blue)">' + icons.mail + emailCount + '</span>' : ''}
+            ${smsCount > 0 ? '<span class="activity-ind" style="color:var(--brand)">' + icons.sms + smsCount + '</span>' : ''}
+          </div>
+          ${locationStr ? '<span style="display:flex;align-items:center;gap:4px;font-size:10px;color:var(--text-muted)" class="shrink-0">' + icons.map + ' ' + esc(locationStr) + '</span>' : ''}
+          <span style="font-size:10px;color:var(--text-muted);width:80px;text-align:right" class="shrink-0">${c.last_activity_at ? timeAgo(c.last_activity_at) : '--'}</span>
+          <span style="color:var(--text-muted);opacity:0.4" class="shrink-0">${icons.chevRight}</span>
+        </div>`;
+      });
+
+      // Pagination
+      const totalTierPages = Math.ceil(st.contacts.length / state.tierLimit);
+      html += `<div class="pagination">
+        <div class="flex items-center gap-3">
+          <span class="page-info">Showing ${state.tierPage * state.tierLimit + 1}–${Math.min((state.tierPage+1)*state.tierLimit, st.contacts.length)} of ${st.contacts.length}</span>
+          <div class="page-sizes">
+            ${[25,50,100].map(n => `<button class="page-size-btn${state.tierLimit===n?' active':''}" onclick="state.tierLimit=${n};state.tierPage=0;renderOutreach(document.getElementById('main-content'))">${n}</button>`).join('')}
+          </div>
+        </div>
+        <div class="page-nav">
+          <button class="page-btn" ${state.tierPage===0?'disabled':''} onclick="state.tierPage--;renderOutreach(document.getElementById('main-content'))">${icons.chevLeft}</button>
+          <button class="page-btn" ${state.tierPage>=totalTierPages-1?'disabled':''} onclick="state.tierPage++;renderOutreach(document.getElementById('main-content'))">${icons.chevRight}</button>
+        </div>
+      </div>`;
+    }
+    html += '</div>';
+  }
+
+  html += '</div>';
+  el.innerHTML = html;
+}
+
+function selectTier(id) {
+  state.selectedTier = state.selectedTier === id ? null : id;
+  state.tierPage = 0;
+  // Store tier in hash so back navigation restores it
+  if (state.selectedTier) {
+    history.replaceState(null, '', '#outreach?tier=' + state.selectedTier);
+  } else {
+    history.replaceState(null, '', '#outreach');
+  }
+  renderOutreach(document.getElementById('main-content'));
+}
+
+function exportTierCSV(tierId) {
+  const tier = (window._outreachTiers || []).find(t => t.id === tierId);
+  if (!tier) return;
+  const rows = [['Name','Email','Phone','Type','Source','City','State','Last Activity']];
+  tier.contacts.forEach(c => {
+    rows.push([c.full_name||'', c.email||'', c.phone||'', c.account_type||'', c.source||'', c.city||'', c.state||'', c.last_activity_at||'']);
+  });
+  const csv = rows.map(r => r.map(v => '"' + String(v).replace(/"/g,'""') + '"').join(',')).join('\n');
+  const blob = new Blob([csv], { type: 'text/csv' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = tierId + '-contacts.csv'; a.click();
+  URL.revokeObjectURL(url);
+}
+
+// =================== SERVICE COUNT ===================
+const SERVICE_COLORS = {
+  'Handyman Work': '#F7880C',
+  'Home Cleaning': '#22c55e',
+  'Pet Sitter': '#8b5cf6',
+  'Lawn Care & Landscaping': '#84cc16',
+  'Photographer': '#3b82f6',
+  'Personal Trainer': '#ef4444',
+  'Unspecified': '#64748b',
+};
+function computeServiceGroups() {
+  const contacts = (DATA.contacts || []).filter(c =>
+    c.account_type === 'Service Provider' &&
+    (c.lifecycle_stage === 'enrolled' || c.lifecycle_stage === 'active_provider')
+  );
+  const groups = {};
+  contacts.forEach(c => {
+    const key = c.service_type || 'Unspecified';
+    if (!groups[key]) groups[key] = [];
+    groups[key].push(c);
+  });
+  return Object.keys(groups).sort((a,b) => groups[b].length - groups[a].length).map(name => ({
+    name,
+    count: groups[name].length,
+    color: SERVICE_COLORS[name] || '#64748b',
+    contacts: groups[name].sort((a,b) => (b.last_activity_at||'').localeCompare(a.last_activity_at||'')),
+  }));
+}
+function renderServiceCount(el) {
+  const groups = computeServiceGroups();
+  window._serviceGroups = groups;
+  const total = groups.reduce((s,g) => s + g.count, 0);
+
+  let html = '<div class="space-y">';
+  html += `<div><h1 style="font-size:24px;font-weight:700;display:flex;align-items:center;gap:8px"><span style="color:var(--brand)">${icons.users}</span> Service Count <span style="color:var(--text-muted);font-weight:500">${total}</span></h1><p class="text-sm text-muted" style="margin-top:2px">Enrolled and active service providers grouped by service type.</p></div>`;
+
+  // Funnel banner — mirrors localhost CRM: Accounts / In Dashboard / Onboarding / Texted Today
+  const f = DATA.serviceCountFunnel;
+  if (f) {
+    const dashPct = f.accounts_total > 0 ? Math.round((f.in_dashboard / f.accounts_total) * 100) : 0;
+    const remPct = f.in_dashboard > 0 ? Math.round((f.texted_today / f.in_dashboard) * 100) : 0;
+    html += `<div class="card"><div class="card-body" style="padding:16px">
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px">
+        <div style="display:flex;align-items:center;gap:12px">
+          <div style="width:40px;height:40px;border-radius:12px;background:#F7880C15;display:flex;align-items:center;justify-content:center;flex-shrink:0;color:#F7880C">${icons.users}</div>
+          <div><div style="font-size:24px;font-weight:700;line-height:1">${f.accounts_total}</div><div style="font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--text-muted);font-weight:500;margin-top:4px">Accounts Created</div></div>
+        </div>
+        <button type="button" onclick="selectBucket('dashboard')" style="display:flex;align-items:center;gap:12px;background:${state.selectedBucket==='dashboard'?'#10b98120':'transparent'};border:${state.selectedBucket==='dashboard'?'1px solid #10b98166':'1px solid transparent'};border-radius:8px;padding:8px;margin:-8px;cursor:pointer;text-align:left;transition:background .15s" title="Click to see everyone in the Dashboard bucket" onmouseover="this.style.background='#10b98110'" onmouseout="this.style.background='${state.selectedBucket==='dashboard'?'#10b98120':'transparent'}'">
+          <div style="width:40px;height:40px;border-radius:12px;background:#10b98115;display:flex;align-items:center;justify-content:center;flex-shrink:0;color:#10b981">${icons.layoutDashboard}</div>
+          <div><div style="font-size:24px;font-weight:700;line-height:1">${f.in_dashboard}<span style="font-size:14px;font-weight:400;color:var(--text-muted);margin-left:4px">(${dashPct}%)</span></div><div style="font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--text-muted);font-weight:500;margin-top:4px">In Dashboard</div></div>
+        </button>
+        <button type="button" onclick="selectBucket('onboarding')" style="display:flex;align-items:center;gap:12px;background:${state.selectedBucket==='onboarding'?'#f59e0b20':'transparent'};border:${state.selectedBucket==='onboarding'?'1px solid #f59e0b66':'1px solid transparent'};border-radius:8px;padding:8px;margin:-8px;cursor:pointer;text-align:left;transition:background .15s" title="Click to see everyone stuck in Onboarding" onmouseover="this.style.background='#f59e0b10'" onmouseout="this.style.background='${state.selectedBucket==='onboarding'?'#f59e0b20':'transparent'}'">
+          <div style="width:40px;height:40px;border-radius:12px;background:#f59e0b15;display:flex;align-items:center;justify-content:center;flex-shrink:0;color:#f59e0b">${icons.hourglass}</div>
+          <div><div style="font-size:24px;font-weight:700;line-height:1">${f.in_onboarding}</div><div style="font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--text-muted);font-weight:500;margin-top:4px">Stuck in Onboarding</div></div>
+        </button>
+        <div style="display:flex;align-items:center;gap:12px">
+          <div style="width:40px;height:40px;border-radius:12px;background:#3b82f615;display:flex;align-items:center;justify-content:center;flex-shrink:0;color:#3b82f6">${icons.bellRing}</div>
+          <div style="min-width:0">
+            <div style="font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--text-muted);font-weight:500">Texted Today</div>
+            <div style="display:flex;align-items:baseline;gap:12px;margin-top:2px">
+              <div style="display:flex;align-items:baseline;gap:4px" title="Texted dashboard participants today">
+                <span style="font-size:18px;font-weight:700;line-height:1;color:#10b981">${f.texted_today}</span>
+                <span style="font-size:10px;color:var(--text-muted)">/ ${f.in_dashboard} dash</span>
+              </div>
+              <div style="display:flex;align-items:baseline;gap:4px" title="Texted onboarding participants today">
+                <span style="font-size:18px;font-weight:700;line-height:1;color:#f59e0b">${f.onboarding_texted_today}</span>
+                <span style="font-size:10px;color:var(--text-muted)">/ ${f.in_onboarding} onbd</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      ${(f.not_texted_today > 0 || f.onboarding_not_texted_today > 0) ? `
+        <div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--border);display:flex;flex-direction:column;gap:6px">
+          ${f.in_dashboard > 0 && f.not_texted_today > 0 ? `<div style="display:flex;align-items:center;gap:8px;font-size:13px;font-weight:500;color:#10b981"><span style="width:14px;height:14px;display:inline-block">${icons.bellOff}</span><span><b>${f.not_texted_today}</b> dashboard ${f.not_texted_today===1?'participant has':'participants have'} not been texted today</span></div>` : ''}
+          ${f.in_onboarding > 0 && f.onboarding_not_texted_today > 0 ? `<div style="display:flex;align-items:center;gap:8px;font-size:13px;font-weight:500;color:#f59e0b"><span style="width:14px;height:14px;display:inline-block">${icons.bellOff}</span><span><b>${f.onboarding_not_texted_today}</b> onboarding ${f.onboarding_not_texted_today===1?'participant has':'participants have'} not been texted today</span></div>` : ''}
+        </div>
+      ` : ''}
+    </div></div>`;
+  }
+
+  html += '<div class="tier-grid">';
+  groups.forEach(g => {
+    const selected = state.selectedService === g.name;
+    html += `<div class="card tier-card${selected?' selected':''}" style="${selected ? 'border-color:'+g.color : ''}" onclick="selectService('${esc(g.name).replace(/'/g,"\\'")}')">
+      <div class="card-body">
+        <div class="tier-header">
+          <div class="flex items-center gap-2">
+            <div class="tier-icon" style="background:${g.color}15"><span style="color:${g.color}">${icons.users}</span></div>
+            <div><div class="tier-count">${g.count}</div><div class="tier-priority">Providers</div></div>
+          </div>
+        </div>
+        <div class="tier-name">${esc(g.name)}</div>
+      </div>
+    </div>`;
+  });
+  html += '</div>';
+
+  const sg = groups.find(g => g.name === state.selectedService);
+  if (sg) {
+    html += `<div class="card"><div style="padding:16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between">
+      <div><h2 style="font-size:16px;font-weight:600;color:${sg.color}">${esc(sg.name)}</h2><p style="font-size:12px;color:var(--text-muted);margin-top:2px">${sg.count} provider${sg.count!==1?'s':''}</p></div>
+      <span class="badge" style="border-color:${sg.color}40;color:${sg.color};font-size:14px;font-weight:700">${sg.count}</span>
+    </div>`;
+    if (sg.contacts.length === 0) {
+      html += '<p style="padding:32px;text-align:center;color:var(--text-muted);font-size:14px">No providers in this service</p>';
+    } else {
+      if (!state.svcLimit) state.svcLimit = 25;
+      if (!state.svcPage) state.svcPage = 0;
+      const slice = sg.contacts.slice(state.svcPage * state.svcLimit, (state.svcPage + 1) * state.svcLimit);
+      slice.forEach(c => {
+        const emailCount = (DATA.emailEvents || []).filter(e => e.contact_id === c.id).length;
+        const smsCount = (DATA.smsMessages || []).filter(m => m.contact_id === c.id).length;
+        const locationStr = [c.city, c.state].filter(Boolean).join(', ');
+        // Dashboard/Onboarding + Texted Today badges (mirror localhost CRM)
+        const dashBadge = c.in_dashboard
+          ? `<span style="display:inline-flex;align-items:center;gap:3px;padding:2px 6px;border-radius:4px;font-size:10px;font-weight:500;background:#10b98126;color:#10b981" title="Made it past onboarding into the dashboard"><span style="width:10px;height:10px;display:inline-block">${icons.layoutDashboard}</span>In Dashboard</span>`
+          : `<span style="display:inline-flex;align-items:center;gap:3px;padding:2px 6px;border-radius:4px;font-size:10px;font-weight:500;background:#f59e0b26;color:#f59e0b" title="Created an account but has not yet completed onboarding"><span style="width:10px;height:10px;display:inline-block">${icons.hourglass}</span>Onboarding</span>`;
+        const textBadge = c.in_dashboard
+          ? (c.texted_today
+              ? `<span style="display:inline-flex;align-items:center;gap:3px;padding:2px 6px;border-radius:4px;font-size:10px;font-weight:500;background:#3b82f626;color:#3b82f6" title="Got an outbound SMS today (Vegas time)"><span style="width:10px;height:10px;display:inline-block">${icons.bellRing}</span>Texted Today</span>`
+              : `<span style="display:inline-flex;align-items:center;gap:3px;padding:2px 6px;border-radius:4px;font-size:10px;font-weight:500;background:var(--border);color:var(--text-muted)" title="No outbound SMS today (Vegas time)"><span style="width:10px;height:10px;display:inline-block">${icons.bellOff}</span>Needs Text</span>`)
+          : '';
+        html += `<div class="outreach-contact" onclick="navigate('contacts/${c.id}')">
+          <div class="avatar">${(c.full_name?.[0]||'?').toUpperCase()}</div>
+          <div class="flex-1" style="min-width:0">
+            <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+              <span style="font-size:14px;font-weight:500" class="truncate">${esc(c.full_name)}</span>
+              ${dashBadge}
+              ${textBadge}
+            </div>
+            <div style="display:flex;gap:12px;font-size:11px;color:var(--text-muted);margin-top:2px">
+              ${c.email ? '<span class="flex items-center gap-2">' + icons.mail + ' ' + esc(c.email) + '</span>' : ''}
+              ${c.phone ? '<span class="flex items-center gap-2">' + icons.phone + ' ' + esc(c.phone) + '</span>' : ''}
+            </div>
+          </div>
+          <div class="flex items-center gap-2 shrink-0">
+            ${emailCount > 0 ? '<span class="activity-ind" style="color:var(--blue)">' + icons.mail + emailCount + '</span>' : ''}
+            ${smsCount > 0 ? '<span class="activity-ind" style="color:var(--brand)">' + icons.sms + smsCount + '</span>' : ''}
+          </div>
+          ${locationStr ? '<span style="display:flex;align-items:center;gap:4px;font-size:10px;color:var(--text-muted)" class="shrink-0">' + icons.map + ' ' + esc(locationStr) + '</span>' : ''}
+          <span style="font-size:10px;color:var(--text-muted);width:80px;text-align:right" class="shrink-0">${c.last_activity_at ? timeAgo(c.last_activity_at) : '--'}</span>
+          <span style="color:var(--text-muted);opacity:0.4" class="shrink-0">${icons.chevRight}</span>
+        </div>`;
+      });
+
+      const totalSvcPages = Math.ceil(sg.contacts.length / state.svcLimit);
+      html += `<div class="pagination">
+        <div class="flex items-center gap-3">
+          <span class="page-info">Showing ${state.svcPage * state.svcLimit + 1}–${Math.min((state.svcPage+1)*state.svcLimit, sg.contacts.length)} of ${sg.contacts.length}</span>
+          <div class="page-sizes">
+            ${[25,50,100].map(n => `<button class="page-size-btn${state.svcLimit===n?' active':''}" onclick="state.svcLimit=${n};state.svcPage=0;renderServiceCount(document.getElementById('main-content'))">${n}</button>`).join('')}
+          </div>
+        </div>
+        <div class="page-nav">
+          <button class="page-btn" ${state.svcPage===0?'disabled':''} onclick="state.svcPage--;renderServiceCount(document.getElementById('main-content'))">${icons.chevLeft}</button>
+          <button class="page-btn" ${state.svcPage>=totalSvcPages-1?'disabled':''} onclick="state.svcPage++;renderServiceCount(document.getElementById('main-content'))">${icons.chevRight}</button>
+        </div>
+      </div>`;
+    }
+    html += '</div>';
+  }
+
+  // Bucket list (In Dashboard / Stuck in Onboarding) — rendered when a funnel card is clicked
+  if (state.selectedBucket && !sg) {
+    const wantDash = state.selectedBucket === 'dashboard';
+    const bucketContacts = (DATA.contacts || [])
+      .filter(c => c.account_type === 'Service Provider'
+        && (c.lifecycle_stage === 'enrolled' || c.lifecycle_stage === 'active_provider')
+        && (wantDash ? c.in_dashboard : !c.in_dashboard))
+      .sort((a, b) => (b.last_activity_at || '').localeCompare(a.last_activity_at || ''));
+    const color = wantDash ? '#10b981' : '#f59e0b';
+    const icon = wantDash ? icons.layoutDashboard : icons.hourglass;
+    const title = wantDash ? 'In Dashboard' : 'Stuck in Onboarding';
+    const desc = wantDash
+      ? 'Everyone who has made it past onboarding into the dashboard'
+      : "Signed up but hasn't reached the dashboard yet";
+    html += `<div class="card"><div style="padding:16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between">
+      <div><h2 style="font-size:16px;font-weight:600;color:${color};display:flex;align-items:center;gap:6px"><span style="width:16px;height:16px;display:inline-block">${icon}</span>${title}</h2><p style="font-size:12px;color:var(--text-muted);margin-top:2px">${desc}</p></div>
+      <span class="badge" style="border-color:${color}40;color:${color};font-size:14px;font-weight:700">${bucketContacts.length}</span>
+    </div>`;
+    if (bucketContacts.length === 0) {
+      html += '<p style="padding:32px;text-align:center;color:var(--text-muted);font-size:14px">No one in this bucket</p>';
+    } else {
+      if (!state.svcLimit) state.svcLimit = 25;
+      if (!state.svcPage) state.svcPage = 0;
+      const slice = bucketContacts.slice(state.svcPage * state.svcLimit, (state.svcPage + 1) * state.svcLimit);
+      slice.forEach(c => {
+        const emailCount = (DATA.emailEvents || []).filter(e => e.contact_id === c.id).length;
+        const smsCount = (DATA.smsMessages || []).filter(m => m.contact_id === c.id).length;
+        const locationStr = [c.city, c.state].filter(Boolean).join(', ');
+        const textBadge = c.in_dashboard
+          ? (c.texted_today
+              ? `<span style="display:inline-flex;align-items:center;gap:3px;padding:2px 6px;border-radius:4px;font-size:10px;font-weight:500;background:#3b82f626;color:#3b82f6" title="Got an outbound SMS today"><span style="width:10px;height:10px;display:inline-block">${icons.bellRing}</span>Texted Today</span>`
+              : `<span style="display:inline-flex;align-items:center;gap:3px;padding:2px 6px;border-radius:4px;font-size:10px;font-weight:500;background:var(--border);color:var(--text-muted)" title="No outbound SMS today"><span style="width:10px;height:10px;display:inline-block">${icons.bellOff}</span>Needs Text</span>`)
+          : '';
+        html += `<div class="outreach-contact" onclick="navigate('contacts/${c.id}')">
+          <div class="avatar">${(c.full_name?.[0]||'?').toUpperCase()}</div>
+          <div class="flex-1" style="min-width:0">
+            <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+              <span style="font-size:14px;font-weight:500" class="truncate">${esc(c.full_name)}</span>
+              ${c.service_type ? `<span style="font-size:10px;color:var(--text-muted)">${esc(c.service_type)}</span>` : ''}
+              ${textBadge}
+            </div>
+            <div style="display:flex;gap:12px;font-size:11px;color:var(--text-muted);margin-top:2px">
+              ${c.email ? '<span class="flex items-center gap-2">' + icons.mail + ' ' + esc(c.email) + '</span>' : ''}
+              ${c.phone ? '<span class="flex items-center gap-2">' + icons.phone + ' ' + esc(c.phone) + '</span>' : ''}
+            </div>
+          </div>
+          <div class="flex items-center gap-2 shrink-0">
+            ${emailCount > 0 ? '<span class="activity-ind" style="color:var(--blue)">' + icons.mail + emailCount + '</span>' : ''}
+            ${smsCount > 0 ? '<span class="activity-ind" style="color:var(--brand)">' + icons.sms + smsCount + '</span>' : ''}
+          </div>
+          ${locationStr ? '<span style="display:flex;align-items:center;gap:4px;font-size:10px;color:var(--text-muted)" class="shrink-0">' + icons.map + ' ' + esc(locationStr) + '</span>' : ''}
+          <span style="font-size:10px;color:var(--text-muted);width:80px;text-align:right" class="shrink-0">${c.last_activity_at ? timeAgo(c.last_activity_at) : '--'}</span>
+          <span style="color:var(--text-muted);opacity:0.4" class="shrink-0">${icons.chevRight}</span>
+        </div>`;
+      });
+      const totalSvcPages = Math.ceil(bucketContacts.length / state.svcLimit);
+      html += `<div class="pagination">
+        <div class="flex items-center gap-3">
+          <span class="page-info">Showing ${state.svcPage * state.svcLimit + 1}–${Math.min((state.svcPage+1)*state.svcLimit, bucketContacts.length)} of ${bucketContacts.length}</span>
+          <div class="page-sizes">
+            ${[25,50,100].map(n => `<button class="page-size-btn${state.svcLimit===n?' active':''}" onclick="state.svcLimit=${n};state.svcPage=0;renderServiceCount(document.getElementById('main-content'))">${n}</button>`).join('')}
+          </div>
+        </div>
+        <div class="page-nav">
+          <button class="page-btn" ${state.svcPage===0?'disabled':''} onclick="state.svcPage--;renderServiceCount(document.getElementById('main-content'))">${icons.chevLeft}</button>
+          <button class="page-btn" ${state.svcPage>=totalSvcPages-1?'disabled':''} onclick="state.svcPage++;renderServiceCount(document.getElementById('main-content'))">${icons.chevRight}</button>
+        </div>
+      </div>`;
+    }
+    html += '</div>';
+  }
+
+  html += '</div>';
+  el.innerHTML = html;
+}
+function selectService(name) {
+  state.selectedService = state.selectedService === name ? null : name;
+  state.selectedBucket = null;
+  state.svcPage = 0;
+  renderServiceCount(document.getElementById('main-content'));
+}
+function selectBucket(bucket) {
+  state.selectedBucket = state.selectedBucket === bucket ? null : bucket;
+  state.selectedService = null;
+  state.svcPage = 0;
+  renderServiceCount(document.getElementById('main-content'));
+}
+
+// =================== MERGE ===================
+function renderMerge(el) {
+  const mergeLog = DATA.mergeLog || [];
+  let html = '<div class="space-y" style="max-width:800px">';
+  html += `<div><h1 style="font-size:24px;font-weight:700;display:flex;align-items:center;gap:8px"><span style="color:var(--brand)">${icons.merge}</span> Merge Review</h1><p class="text-sm text-muted" style="margin-top:2px">Duplicates are automatically merged during every sync. This log shows all completed merges.</p></div>`;
+
+  // Status banner
+  html += `<div class="card merge-banner" style="background:var(--green-bg);border-color:rgba(34,197,94,0.3)">
+    <span style="color:var(--green)">${icons.check}</span>
+    <div><span style="font-weight:600;font-size:14px">Auto-Merge Active</span><p style="font-size:13px;color:var(--text-muted);margin-top:2px">Contacts with the same phone or email are automatically merged after every sync. All SMS, emails, timeline events, and notes are transferred to the surviving record.</p></div>
+  </div>`;
+
+  // Merge log
+  html += `<div class="card"><div class="card-header"><h3 style="display:flex;align-items:center;gap:8px">${icons.merge} Merge History (${mergeLog.length})</h3></div><div class="card-body-np">`;
+  if (mergeLog.length === 0) {
+    html += '<p style="padding:32px;text-align:center;color:var(--text-muted);font-size:14px">No merges have occurred yet.</p>';
+  } else {
+    mergeLog.forEach(m => {
+      html += `<div class="merge-entry" style="display:flex;align-items:center;justify-content:space-between;padding:16px">
+        <div class="flex items-center gap-3">
+          <div style="width:32px;height:32px;border-radius:50%;background:var(--brand-bg);display:flex;align-items:center;justify-content:center"><span style="color:var(--brand)">${icons.merge}</span></div>
+          <div>
+            <div style="font-size:14px"><span style="font-weight:500">${esc(m.winner_name || m.winner_email || (m.winner_contact_id ? m.winner_contact_id.substring(0,8) : 'Contact'))}</span> <span class="text-muted">absorbed duplicate</span> <span style="font-size:12px;font-family:monospace;color:var(--text-muted)">${m.loser_contact_id ? m.loser_contact_id.substring(0,8) + '...' : ''}</span></div>
+            <div style="font-size:12px;color:var(--text-muted);margin-top:2px">${m.merged_at ? timeAgo(m.merged_at) : ''}</div>
+          </div>
+        </div>
+        <span class="badge badge-gray" style="font-size:10px">${esc((m.merge_reason || 'duplicate').replace('auto_', 'Auto: '))}</span>
+      </div>`;
+    });
+  }
+  html += '</div></div></div>';
+  el.innerHTML = html;
+}
+</script>
+</body>
+</html>
